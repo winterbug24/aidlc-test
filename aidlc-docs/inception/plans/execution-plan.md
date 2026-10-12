@@ -136,13 +136,13 @@ Workflow Planning -> Functional Design -> NFR Requirements -> NFR Design
   - **근거**: 인증, 요청 제한, 구조화 로깅, 전역 오류 처리, 백업/복원 패턴을 설계에 반영해야 한다. 복원력 테스트 접근 방식 질문(RESILIENCY-14)도 이 단계에서 확인한다
 - [ ] Infrastructure Design - SKIP
   - **근거**: 로컬 PC 전용 실행으로 배포 인프라와 클라우드 리소스가 없다
-- [ ] Code Generation - EXECUTE (ALWAYS)
+- [x] Code Generation - EXECUTE (ALWAYS) (COMPLETED)
   - **근거**: 구현 계획 수립 후 애플리케이션 코드, 테스트, README를 생성한다
-- [ ] Build and Test - EXECUTE (ALWAYS)
+- [x] Build and Test - EXECUTE (ALWAYS) (COMPLETED)
   - **근거**: 빌드, 테스트 실행, 의존성 취약점 스캔 지침을 작성하고 검증한다
 
 ### 🟡 OPERATIONS PHASE
-- [ ] Operations - PLACEHOLDER
+- [x] Operations - PLACEHOLDER (수행할 활동 없음)
   - **근거**: 향후 배포 및 모니터링 워크플로용 자리표시자
 
 ## 예상 일정
