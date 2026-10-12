@@ -1,0 +1,10 @@
+[project]
+name = "todo-api"
+version = "0.1.0"
+description = "Flask와 SQLite로 만든 할 일(To-Do) 관리 REST API"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "tests"]
+testpaths = ["tests"]
+addopts = "-ra"

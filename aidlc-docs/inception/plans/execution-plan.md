@@ -33,7 +33,7 @@ flowchart TD
         RE["Reverse Engineering<br/><b>SKIP</b>"]
         RA["Requirements Analysis<br/><b>COMPLETED</b>"]
         US["User Stories<br/><b>SKIP</b>"]
-        WP["Workflow Planning<br/><b>IN PROGRESS</b>"]
+        WP["Workflow Planning<br/><b>COMPLETED</b>"]
         AD["Application Design<br/><b>SKIP</b>"]
         UG["Units Generation<br/><b>SKIP</b>"]
     end
@@ -93,7 +93,7 @@ INCEPTION PHASE
 - Reverse Engineering        : SKIP (Greenfield)
 - Requirements Analysis      : COMPLETED
 - User Stories               : SKIP
-- Workflow Planning          : IN PROGRESS
+- Workflow Planning          : COMPLETED
 - Application Design         : SKIP
 - Units Generation           : SKIP
 
@@ -121,18 +121,18 @@ Workflow Planning -> Functional Design -> NFR Requirements -> NFR Design
 - [x] Requirements Analysis (COMPLETED)
 - [x] User Stories (SKIPPED)
   - **근거**: 사용자 유형이 하나뿐인 단순 CRUD이고, 요구사항 문서의 기능 요구사항이 수용 기준 역할을 충분히 한다
-- [x] Execution Plan (IN PROGRESS)
+- [x] Execution Plan (COMPLETED)
 - [ ] Application Design - SKIP
   - **근거**: 단일 소규모 애플리케이션으로 컴포넌트 경계가 단순하다(앱 팩토리, 라우트, DB, 인증). 모듈 구성은 Code Generation 계획에서 정의하면 충분하다
 - [ ] Units Generation - SKIP
   - **근거**: 단일 유닛(`todo-api`)이며 분해할 대상이 없다
 
 ### 🟢 CONSTRUCTION PHASE (유닛: todo-api)
-- [ ] Functional Design - EXECUTE (간결하게)
+- [x] Functional Design - EXECUTE (간결하게) (COMPLETED)
   - **근거**: 신규 데이터 모델(`todos` 테이블, 논리 삭제)과 업무 규칙(입력 검증, 완료 상태 전환, 삭제 항목 취급, API 계약)을 확정해야 한다. 보안 규칙이 요구하는 오용 시나리오(SECURITY-11)와 테스트 가능한 속성 목록도 여기서 정리한다
-- [ ] NFR Requirements - EXECUTE
+- [x] NFR Requirements - EXECUTE (COMPLETED)
   - **근거**: 기술 스택(Python/Flask 버전, 요청 제한 라이브러리, Hypothesis)을 확정해야 하고, 복원력 확장이 사용자에게 직접 묻도록 정한 질문(CI/CD, 롤백, 배포 방식, 장애 대응)이 남아 있다
-- [ ] NFR Design - EXECUTE
+- [x] NFR Design - EXECUTE (COMPLETED)
   - **근거**: 인증, 요청 제한, 구조화 로깅, 전역 오류 처리, 백업/복원 패턴을 설계에 반영해야 한다. 복원력 테스트 접근 방식 질문(RESILIENCY-14)도 이 단계에서 확인한다
 - [ ] Infrastructure Design - SKIP
   - **근거**: 로컬 PC 전용 실행으로 배포 인프라와 클라우드 리소스가 없다
