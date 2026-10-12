@@ -46,3 +46,38 @@ Security Baseline 확장 규칙이 코드에서 지켜지는지 확인하는 절
 ## 4. 운영 전제 (자동으로 확인할 수 없음)
 - DB, 백업, 로그 파일이 있는 볼륨에 OS 디스크 암호화가 적용되어 있어야 한다 (SECURITY-01의 준수 전제)
 - `TODO_HOST`를 루프백이 아닌 주소로 바꾸지 않는다. 바꾸면 통신이 암호화되지 않은 채 네트워크에 노출된다
+
+## 2차 워크플로(웹 화면)에서 추가된 보안 확인
+
+### 자동화된 테스트
+```bash
+.venv/bin/python -m pytest tests/test_security_headers.py tests/test_web_routes.py tests/test_launcher.py tests/test_ui_key.py tests/test_ui_todos.py -q
+```
+
+| 규칙 | 확인 내용 | 테스트 |
+|---|---|---|
+| SECURITY-04 | 보안 헤더 5종이 화면, API, 401, 404, 405, 409, 429, 500 응답 모두에 붙음. 정책에 `unsafe-inline`, `unsafe-eval`, 외부 출처 없음 | `test_security_headers.py` |
+| SECURITY-04 | 화면 문서에 인라인 스크립트, 인라인 스타일, 인라인 이벤트 처리기, 외부 주소 없음 | `test_web_routes.py` |
+| SECURITY-04 | 실제 브라우저에서 콘텐츠 보안 정책 위반 0건 | 모든 `test_ui_*.py` (공통 감시 장치) |
+| SECURITY-05 | 목록 밖 이름과 경로 탈출 시도(`..`, 인코딩된 구분자, 역슬래시, `.env`)가 404 | `test_web_routes.py` |
+| SECURITY-05 | 태그가 든 제목과 서버 오류 문구가 화면에 글자 그대로 표시되고 요소가 생기지 않음 | `test_ui_todos.py`, `test_ui_errors.py` |
+| SECURITY-05 | 스크립트가 문자열을 마크업으로 넣는 기능(`innerHTML` 등)을 쓰지 않음 | `test_web_routes.py` |
+| SECURITY-08 | 화면은 인증 없이 열리지만 `/todos`는 계속 401. 화면 파일에 데이터와 키 없음 | `test_web_routes.py` |
+| SECURITY-08 | 키 없이는 화면에 목록이 보이지 않음. 서버가 받아들인 키만 저장 | `test_ui_key.py` |
+| SECURITY-03 | 키가 주소, 화면 글자, 요청 주소에 없음. 스크립트에 콘솔 출력 없음 | `test_ui_key.py`, `test_web_routes.py` |
+| SECURITY-11 | 화면 파일 요청도 요청 제한 대상. 실제 인증 실패 한도 동작 | `test_security_headers.py`, `test_ui_key.py` |
+| SECURITY-12 | 실행 파일이 만든 키 파일 권한 600, 기존 키 파일 보존, 출력과 프로세스 인자에 키 없음 | `test_launcher.py` |
+
+### 수동 확인 추가
+
+| 항목 | 방법 | 기대 |
+|---|---|---|
+| 응답 헤더 | 서버 실행 후 `curl -s -D - -o /dev/null http://127.0.0.1:8000/api_test` | `Content-Security-Policy` 등 5종과 `Cache-Control: no-store` |
+| 브라우저 개발자 도구 | 화면을 열고 F12의 콘솔 탭 확인 | 정책 위반("Refused to ...") 메시지 없음 |
+| 키 저장 위치 | F12의 애플리케이션 탭에서 로컬 저장소 확인 | `todoApiKey` 한 항목만 있음. "키 지우기" 뒤에는 없음 |
+| 프로세스 인자 | 실행 파일로 서버를 띄운 뒤 WSL에서 `ps -ef \| grep todo_api` | 명령줄에 키가 보이지 않음 |
+
+### 수용한 위험 (자동으로 막을 수 없음)
+- 브라우저 저장소의 키는 평문이다. 같은 Windows 계정의 프로그램이 읽을 수 있다
+- 클립보드에 복사한 키는 Windows 클립보드 기록이 켜져 있으면 기록에 남는다
+- 실행 파일은 WSL 안의 8000~8009번 포트에서 HTTP를 받는 프로그램에 키가 든 요청을 한 번 보낸다 (우리 서버인지 확인하려는 것). Windows 쪽 프로그램에는 보내지 않는다

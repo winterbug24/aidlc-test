@@ -4,9 +4,9 @@
 
 ## 사전 요건
 - **도구**: Python 3.12, pip (표준 `venv`)
-- **의존성**: `requirements.txt`(실행), `requirements-dev.txt`(개발/테스트). 모두 `==`로 고정
+- **의존성**: `requirements.txt`(실행), `requirements-dev.txt`(개발/테스트, 화면 테스트용 Playwright 포함). 모두 `==`로 고정
 - **환경 변수**: 빌드와 테스트에는 필요 없다. 서버 실행 시 `TODO_API_KEY`(32자 이상)가 필요하다
-- **시스템**: Linux/WSL (검증 환경: WSL Ubuntu, Python 3.12.3). 디스크 약 100MB, PyPI 접속 필요
+- **시스템**: Linux/WSL (검증 환경: WSL Ubuntu, Python 3.12.3). 디스크 약 600MB(화면 테스트용 Chromium 포함), PyPI와 Playwright 배포처 접속 필요
 
 ## 빌드 단계
 
@@ -76,3 +76,40 @@ curl -s http://127.0.0.1:8000/health   # {"status":"ok"}
 ### 서버가 `설정 오류`를 출력하고 종료
 - **원인**: `TODO_API_KEY`가 없거나 32자 미만이다
 - **해결**: 5단계처럼 키를 만들어 설정한다
+
+## 화면 테스트용 브라우저 (2차 워크플로에서 추가)
+
+화면(`/api_test`)을 검증하는 브라우저 테스트를 돌리려면 의존성 설치 뒤에 브라우저를 한 번 내려받는다. 서버 실행만 할 때는 필요 없다.
+
+### 1. Chromium 내려받기
+```bash
+.venv/bin/python -m playwright install chromium
+```
+- 사용자 홈의 `~/.cache/ms-playwright/`에 내려받는다 (약 115MB). 고정된 playwright 버전이 정한 빌드라 버전을 따로 고를 필요가 없다
+- 이미 받았으면 바로 끝난다
+
+### 2. 시스템 라이브러리 (Ubuntu/WSL)
+브라우저가 `error while loading shared libraries`로 뜨지 않으면 다음을 실행한다. 관리자 권한이 필요하다.
+```bash
+sudo apt install -y libnss3 libnspr4 libasound2t64
+```
+이 PC에는 2026-10-12에 설치했다.
+
+### 3. 확인
+```bash
+.venv/bin/python -m pytest -m e2e -q
+```
+- **기대 결과**: `60 passed`
+
+### 문제 해결 추가
+
+#### `BrowserType.launch: Executable doesn't exist`
+- **원인**: Chromium을 내려받지 않았다
+- **해결**: 위 1단계
+
+#### `error while loading shared libraries: libnss3.so`
+- **원인**: 시스템 라이브러리가 없다
+- **해결**: 위 2단계
+
+## Windows 실행 파일 (2차 워크플로에서 추가)
+`todo-start.bat`, `todo-copy-key.bat`은 빌드할 것이 없다. 프로젝트 폴더에 `.venv`가 만들어져 있으면 바로 쓸 수 있다. 줄바꿈이 CRLF여야 하므로 편집기로 고칠 때 줄바꿈 형식을 바꾸지 않는다. 사용법은 `README.md`의 "웹 화면" 절, 확인 절차는 `e2e-test-instructions.md`에 있다.

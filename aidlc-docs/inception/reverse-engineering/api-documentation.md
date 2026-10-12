@@ -87,3 +87,27 @@
 | `deleted_at` | ISO 8601 UTC 텍스트 또는 NULL | 논리 삭제 시 기록. API 응답에 노출하지 않음 |
 
 - **관계**: 없음
+
+## 2차 워크플로(웹 화면)에서 추가된 것
+
+### 화면 제공 경로 (인증 불필요)
+
+| 주소 | 내용 | 콘텐츠 유형 |
+|---|---|---|
+| `GET /api_test` (끝에 `/`가 있어도 같음) | 화면 문서 | `text/html; charset=utf-8` |
+| `GET /api_test/app.css` | 스타일 | `text/css; charset=utf-8` |
+| `GET /api_test/app.js` | 스크립트 | `text/javascript; charset=utf-8` |
+| `GET /api_test/<그 밖의 이름>` | 404 (공통 JSON 오류 형식) | `application/json` |
+
+기존 엔드포인트 6개의 요청/응답 계약은 바뀌지 않았다.
+
+### 모든 응답에 붙는 헤더 (갱신)
+위의 "모든 응답에 붙는 헤더"에 다음이 더해졌다.
+- `Content-Security-Policy`: 기본 차단, 같은 출처의 스크립트/스타일/API 호출만 허용
+- `Strict-Transport-Security: max-age=31536000; includeSubDomains`
+- `X-Frame-Options: DENY`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+
+### 내부 API 추가
+- `todo_api.security_headers.register_security_headers(app)`
+- `todo_api.launcher`: `choose_port(states) -> Selection`, `probe_ports(key, windows_ports, ports) -> dict`, `read_key(path)`, `create_key_file(path)`, `run_start(project_root, effects)`, `run_copy_key(project_root, effects)`

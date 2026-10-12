@@ -12,11 +12,11 @@
 ## 실행 단계
 - [x] 1. 기능 설계 분석
 - [x] 2. NFR 질문 작성 (아래 질문 1~2)
-- [ ] 3. 사용자 답변 수집 및 모호함 분석
-- [ ] 4. `nfr-requirements.md` 작성 - 보안 헤더 값, 제한 시간, 표시 기준, 테스트 환경, 성능 기준을 수치로 확정
-- [ ] 5. `tech-stack-decisions.md` 작성 - 화면 기술, 테스트 의존성과 버전, CI 구성
-- [ ] 6. 확장 규칙 준수 점검 (Security, Resiliency, PBT 부분 적용)
-- [ ] 7. 완료 메시지 제시 및 승인 요청
+- [x] 3. 사용자 답변 수집 및 모호함 분석
+- [x] 4. `nfr-requirements.md` 작성 - 보안 헤더 값, 제한 시간, 표시 기준, 테스트 환경, 성능 기준을 수치로 확정
+- [x] 5. `tech-stack-decisions.md` 작성 - 화면 기술, 테스트 의존성과 버전, CI 구성
+- [x] 6. 확장 규칙 준수 점검 (Security, Resiliency, PBT 부분 적용)
+- [x] 7. 완료 메시지 제시 및 승인 요청
 
 ## 질문 평가 결과
 
@@ -58,7 +58,7 @@ B) CI에서만 - 시스템에 아무것도 설치하지 않음. 로컬에서는 
 
 C) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ## Question 2
 브라우저 자동화 테스트는 어떤 브라우저로 돌릴까요? (Edge와 Chrome은 둘 다 Chromium 엔진을 씁니다.)
@@ -69,4 +69,4 @@ B) 실제 Chrome과 실제 Edge 두 가지 - CI에 두 브라우저를 설치해
 
 C) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A

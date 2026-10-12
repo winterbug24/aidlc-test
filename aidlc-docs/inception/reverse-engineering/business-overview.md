@@ -21,11 +21,11 @@ flowchart LR
 ```text
 사용자 -> HTTP 클라이언트(curl, PowerShell 등) -> To-Do REST API -> SQLite 파일
 사용자 -> 백업 도구(명령줄) -> SQLite 파일
-현재 웹 화면은 없다. 사용자는 HTTP 클라이언트로만 API를 호출한다.
+사용자는 웹 화면(/api_test) 또는 HTTP 클라이언트로 API를 호출한다. (웹 화면은 2차 워크플로에서 추가)
 ```
 
 ## 비즈니스 설명
-- **설명**: 한 사람이 로컬 PC에서 할 일을 관리하기 위한 REST API. 화면 없이 JSON만 주고받는다.
+- **설명**: 한 사람이 로컬 PC에서 할 일을 관리하기 위한 REST API와 그 API를 쓰는 웹 화면.
 - **비즈니스 트랜잭션**:
 
 | 트랜잭션 | 설명 |

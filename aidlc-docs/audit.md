@@ -481,3 +481,156 @@
 **Context**: NFR Requirements Step 2-4 - 계획 및 질문 저장, 사용자 답변 대기
 
 ---
+
+## CONSTRUCTION - NFR Requirements (web-ui) - 답변 미기입 확인
+**Timestamp**: 2026-10-12T07:09:55Z
+**User Input**: "완료"
+**AI Response**: "web-ui-nfr-requirements-plan.md 확인 결과 질문 1, 2의 [Answer]: 가 모두 비어 있었음. 이 시점에 세션이 중단되어 사용자에게 안내하지 못함."
+**Context**: NFR Requirements Step 5 - 답변 미기입, 세션 중단
+
+---
+
+## 세션 재개 - NFR Requirements (web-ui) 질문 답변 대기
+**Timestamp**: 2026-10-12T07:16:06Z
+**User Input**: "파일: aidlc-docs/construction/plans/web-ui-nfr-requirements-plan.md ... (직전 AI 안내문 전체 인용) ... 각 [Answer]: 뒤에 알파벳을 적고 \"완료\"라고 알려 주세요.  이 부분부터 다시 진행해줘"
+**AI Response**: "aidlc-state.md 확인: 현재 단계는 CONSTRUCTION - NFR Requirements (web-ui), 질문 답변 대기. 질문 파일의 [Answer]: 두 곳이 여전히 비어 있어 진행할 수 없음. 사용자에게 답변 기입 요청. 함께 확인한 상태: 시스템 라이브러리 3개는 아직 미설치, 이전 세션에서 띄운 서버는 세션 종료로 꺼져 있음, 작업 트리는 깨끗함. 사용자 입력의 인용 부분은 직전 AI 응답과 동일하여 요약 표기하고, 사용자가 직접 쓴 문장은 원문 그대로 기록함."
+**Context**: 세션 재개 - NFR Requirements Step 5, GATE: 사용자 답변 대기
+
+---
+
+## CONSTRUCTION - NFR Requirements (web-ui) - 답변 수신 및 산출물 생성
+**Timestamp**: 2026-10-12T07:19:32Z
+**User Input**: "완료"
+**AI Response**: "web-ui-nfr-requirements-plan.md 답변 확인: Q1=A(Playwright를 로컬과 CI 모두에서 실행), Q2=A(Playwright의 Chromium 하나). 모호함/모순 없음. 시스템 라이브러리 libnss3, libnspr4, libasound2 설치 확인. aidlc-docs/construction/web-ui/nfr-requirements/ 에 nfr-requirements.md(보안 헤더 값, 화면 파일 제공, 키 처리, 실행 파일, 공급망, 신뢰성, 성능, 표시와 접근성, 테스트 12항목, 문서)와 tech-stack-decisions.md(화면 기술, 화면 제공, 실행 파일, 테스트 의존성 playwright 1.63.0 / pytest-playwright 0.10.0, CI 변경, 대안) 생성. 계획 단계 1~7 체크 완료. 확장 준수: 차단 발견 없음. 결정 사항: 보안 헤더를 화면 응답뿐 아니라 모든 응답에 적용, 브라우저 미설치 환경에서 브라우저 테스트는 건너뛰지 않고 실패."
+**Context**: NFR Requirements Step 5-6 - 산출물 생성
+
+---
+
+## CONSTRUCTION - NFR Requirements (web-ui) - 승인 요청
+**Timestamp**: 2026-10-12T07:19:32Z
+**User Input**: (대기 중)
+**AI Response**: "표준 2지선다 완료 메시지 제시: Request Changes / Continue to Next Stage (NFR Design)"
+**Context**: NFR Requirements 승인 게이트 - 사용자 응답 대기
+
+---
+
+## CONSTRUCTION - NFR Requirements (web-ui) - 승인
+**Timestamp**: 2026-10-12T07:25:11Z
+**User Input**: "승인 진행"
+**AI Response**: "NFR Requirements 승인 확인 및 완료 처리. NFR Design으로 진행."
+**Context**: NFR Requirements 승인 완료 - 다음 단계: NFR Design
+
+---
+
+## CONSTRUCTION - NFR Design (web-ui) - 계획, 환경 확인, 산출물 생성
+**Timestamp**: 2026-10-12T07:25:11Z
+**User Input**: (없음 - 승인된 NFR 요구사항 기반)
+**AI Response**: "5개 질문 범주를 모두 평가한 결과 사용자에게 물을 미정 사항이 없어 질문 없이 진행(범주별 근거를 web-ui-nfr-design-plan.md에 기록). 포트 판정 방식을 정하기 위해 이 PC에서 환경 동작을 직접 확인: WSL 서버는 Windows에서 호출됨, Windows 프로그램의 포트는 WSL에서 보이지 않음, Windows에서 닫힌 포트 연결 실패 판정에 약 2초 소요, WSL에서 Windows 실행 파일 호출 가능. 산출물 생성: nfr-design-patterns.md(보안 패턴 WSP-01~07, 복원력 패턴 WRP-01~05, 성능 4, 표시 5, 테스트 용이성, 수동 확인 항목 6건), logical-components.md(추가 컴포넌트 W-01~11, 변경되는 기존 컴포넌트, 의존 관계, 파이프라인 변화, 화면 주소 구성, 실행 파일 구성). 확장 준수: 차단 발견 없음. 설계 결정: 서버 식별 호출을 WSL 안에서만 수행해 키 헤더 노출 범위 축소, 응답 헤더 설정을 전용 컴포넌트로 분리."
+**Context**: NFR Design Step 1-6 - 산출물 생성
+
+---
+
+## CONSTRUCTION - NFR Design (web-ui) - 승인 요청
+**Timestamp**: 2026-10-12T07:25:11Z
+**User Input**: (대기 중)
+**AI Response**: "표준 2지선다 완료 메시지 제시: Request Changes / Continue to Next Stage (Code Generation)"
+**Context**: NFR Design 승인 게이트 - 사용자 응답 대기
+
+---
+
+## CONSTRUCTION - NFR Design (web-ui) - 승인
+**Timestamp**: 2026-10-12T07:28:58Z
+**User Input**: "승인 진행"
+**AI Response**: "NFR Design 승인 확인 및 완료 처리. Infrastructure Design은 실행 계획에 따라 건너뜀. Code Generation Part 1(Planning)으로 진행."
+**Context**: NFR Design 승인 완료 - 다음 단계: Code Generation
+
+---
+
+## CONSTRUCTION - Code Generation (web-ui) - Part 1 계획 생성 및 승인 요청
+**Timestamp**: 2026-10-12T07:28:58Z
+**User Input**: (없음 - 승인된 설계 기반)
+**AI Response**: "aidlc-docs/construction/plans/web-ui-code-generation-plan.md 생성(11단계, 새 파일 17개, 수정 파일 9개와 리버스 엔지니어링 문서 5개, US-01~18 추적, 논리 컴포넌트 W-01~11 대응, 고치지 않는 파일 명시). 승인 요청: '코드 생성 계획 전체(파일 변경 목록과 11단계 순서)를 승인하시겠습니까?' 참고 사항: 단계 7에서 .venv에 Playwright 설치와 Chromium 내려받기, 단계 6에서 배치 파일을 실제 실행해 확인(실제 .env를 읽고 없으면 생성)."
+**Context**: Code Generation Step 4-6 - 계획 저장, 승인 게이트 - 사용자 응답 대기
+
+---
+
+## CONSTRUCTION - Code Generation (web-ui) - Part 1 계획 승인
+**Timestamp**: 2026-10-12T07:31:40Z
+**User Input**: "승인 진행"
+**AI Response**: "코드 생성 계획 승인 확인. Part 1(Planning) 완료 처리, Part 2(Generation) 시작. 계획의 단계 1부터 순서대로 실행."
+**Context**: Code Generation Step 8-9 - 계획 승인 기록, Part 2 시작
+
+---
+
+## CONSTRUCTION - Code Generation (web-ui) - Part 2 생성 완료
+**Timestamp**: 2026-10-12T08:17:16Z
+**User Input**: (없음 - 승인된 계획 실행)
+**AI Response**: "계획 11단계 모두 실행하고 체크박스 갱신. 새 파일 17개(security_headers.py, routes/web.py, web/index.html, web/app.css, web/app.js, launcher.py, todo-start.bat, todo-copy-key.bat, 테스트 8개, code-summary.md), 기존 파일 9개 제자리 수정, 리버스 엔지니어링 문서 갱신. 검증: pytest 298개 통과(기존 161개 수정 없이 통과 + 새 137개, 시드 변경 재실행 포함), pip-audit 취약점 없음, pip check 정상, Waitress 실제 구동으로 헤더와 화면 파일 확인, 배치 파일 2개를 Windows 명령 해석기로 실제 실행(서버 기동, WSL/Windows 양쪽 화면 200, 클립보드 키 일치, 프로세스 인자에 키 없음, 실행 로직 강제 종료 시 서버도 종료). 화면 갈무리로 밝은/어두운/좁은 창 배치 확인. 확인하지 못한 것: 탐색기 더블클릭과 창 닫기, 브라우저 창이 실제로 떴는지, 한글 글자 모양(WSL에 한글 글꼴 없음), 실제 Edge/Chrome, 화면 배율, GitHub Actions(푸시하지 않음). 부수 효과: Windows 클립보드에 키가 복사되어 확인 후 빈 값으로 바꿈(이전 클립보드 내용 소실), 기본 브라우저에 화면 탭이 열렸을 수 있음, 실제 DB와 로그를 읽기 용도로 사용. 생성 중 수정한 문제: 배치 파일의 배포판 인자 따옴표와 경로 접두어 비교 방식, 테스트 코드 2건. 설계 대비 변경 7건을 code-summary.md 6장에 기록. 계획 대비 추가: business-overview.md의 낡은 문장 2개 수정. 확장 준수: 차단 발견 없음."
+**Context**: Code Generation Step 10-13 - 생성 및 검증 완료
+
+---
+
+## CONSTRUCTION - Code Generation (web-ui) - 승인 요청
+**Timestamp**: 2026-10-12T08:17:16Z
+**User Input**: (대기 중)
+**AI Response**: "표준 2지선다 완료 메시지 제시: Request Changes / Continue to Next Stage (Build and Test)"
+**Context**: Code Generation 승인 게이트 - 사용자 응답 대기
+
+---
+
+## CONSTRUCTION - Code Generation (web-ui) - 승인
+**Timestamp**: 2026-10-12T08:21:02Z
+**User Input**: "승인 진행"
+**AI Response**: "Code Generation 승인 확인 및 완료 처리. Build and Test로 진행."
+**Context**: Code Generation 승인 완료 - 다음 단계: Build and Test
+
+---
+
+## Build and Test Stage (2차 워크플로: web-ui)
+**Timestamp**: 2026-10-12T08:21:02Z
+**Build Status**: Success (고정 파일로 새 가상 환경 설치 51개 패키지, pip check 정상, compileall 정상, Chromium 설치 확인)
+**Test Status**: 자동 테스트 Pass (pytest 298/298: 기존 161개 회귀 통과, 새 예제 기반 71, 속성 기반 6, 화면 60. 화면 테스트 제외 238개 약 15초, 화면 테스트 60개 약 43초. pip-audit 취약점 없음. 성능: 화면 파일 27.3KB, 첫 화면 요청 4회, 1,000건 화면 열기 중앙값 80ms). 수동 확인 20항목은 미수행
+**미확인 항목**: 탐색기 더블클릭과 바로 가기와 창 닫기, 브라우저 창이 실제로 열리는지, 한글 글자 모양, 실제 Edge/Chrome, Windows 테마 전환과 화면 배율, Windows에서 8000번 충돌 시 실제 동작, GitHub Actions 새 단계(푸시하지 않음), Windows 브라우저 기준 응답 시간, 커버리지
+**Files Generated**:
+- build-instructions.md (갱신)
+- unit-test-instructions.md (갱신)
+- integration-test-instructions.md (갱신)
+- performance-test-instructions.md (갱신)
+- security-test-instructions.md (갱신)
+- e2e-test-instructions.md (신규: 자동화 시나리오와 수동 확인 절차 20항목)
+- web-ui-build-and-test-summary.md (신규. 1차 요약 build-and-test-summary.md는 보존)
+**확장 준수**: Security, Resiliency, PBT(부분) 모두 차단 발견 없음
+
+---
+
+## CONSTRUCTION - Build and Test (web-ui) - 승인 요청
+**Timestamp**: 2026-10-12T08:21:02Z
+**User Input**: (대기 중)
+**AI Response**: "Build and test instructions complete. Ready to proceed to Operations stage? 완료 메시지 제시: Request Changes / Approve & Continue (Operations). 수동 확인 미수행 사실을 함께 안내."
+**Context**: Build and Test 승인 게이트 - 사용자 응답 대기
+
+---
+
+## CONSTRUCTION - Build and Test (web-ui) - 승인
+**Timestamp**: 2026-10-12T08:42:14Z
+**User Input**: "승인 진행"
+**AI Response**: "Build and Test 승인 확인 및 완료 처리. 수동 확인 20항목은 미수행 상태로 남아 있음을 상태 파일에 기록. Operations 단계로 진행."
+**Context**: Build and Test 승인 완료 - 다음 단계: Operations
+
+---
+
+## OPERATIONS - Operations (PLACEHOLDER) (2차 워크플로)
+**Timestamp**: 2026-10-12T08:42:14Z
+**User Input**: (없음)
+**AI Response**: "Operations 단계는 자리표시자이며 수행할 활동이 정의되어 있지 않음(이 세션에서 operations/operations.md 확인함). 규칙에 따라 워크플로는 Build and Test에서 종료됨. 운영 관련 산출물(화면 사용법, 실행 파일, 문제 해결, 수동 확인 절차)은 CONSTRUCTION 단계에서 README와 build-and-test 지침에 작성됨. aidlc-state.md를 2차 워크플로 완료로 갱신하고 남은 확인 사항을 기록. git 커밋과 푸시는 수행하지 않음."
+**Context**: 2차 워크플로 완료
+
+---
+
+## 2차 워크플로 완료 후 - 커밋 및 푸시 요청
+**Timestamp**: 2026-10-12T08:45:14Z
+**User Input**: "커밋하고 푸시"
+**AI Response**: "커밋되지 않은 변경 45건을 master에 두 개의 커밋으로 기록(웹 화면 코드와 테스트, AI-DLC 문서)하고 origin으로 푸시. .env와 .venv가 제외 대상임을 확인. 푸시는 이전과 같은 방식(Windows git의 저장된 자격 증명, 해당 명령에 한한 safe.directory 지정). 이 항목은 커밋에 포함되도록 푸시 전에 기록함."
+**Context**: 사용자 요청에 따른 git 커밋 및 푸시
+
+---

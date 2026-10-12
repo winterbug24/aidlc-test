@@ -83,3 +83,33 @@ src/todo_api/
 | limits | 5.8.0 | `rate_limit.py` | 한도 판정 (Flask-Limiter의 하위 의존성을 직접 사용) |
 | Waitress | 3.0.2 | `server.py` | WSGI 서버 |
 | sqlite3 | 표준 라이브러리 | `db.py`, `repository.py`, `backup.py` | 저장 |
+
+## 2차 워크플로(웹 화면)에서 추가된 것
+
+### 추가된 파일
+- `src/todo_api/security_headers.py` - 모든 응답의 보안 헤더와 캐시 헤더 (기존에 `logging_setup.py`에 있던 헤더 두 개를 옮겨 옴)
+- `src/todo_api/routes/web.py` - `/api_test` 화면 파일 제공 (고정 목록, 공개)
+- `src/todo_api/web/index.html`, `app.css`, `app.js` - 화면
+- `src/todo_api/launcher.py` - Windows 실행 파일이 호출하는 실행 로직
+- `todo-start.bat`, `todo-copy-key.bat` - Windows 실행 파일
+- `tests/test_security_headers.py`, `test_web_routes.py` - 서버 쪽 화면 테스트
+- `tests/test_launcher.py`, `test_launcher_properties.py` - 실행 로직 테스트
+- `tests/test_ui_key.py`, `test_ui_todos.py`, `test_ui_errors.py`, `test_ui_display.py` - 브라우저 테스트
+
+### 모듈 계층에 더해진 의존
+```text
+app.py               -> security_headers, routes/web (추가)
+routes/web.py        -> errors
+security_headers.py  -> (없음)
+launcher.py          -> config (서버는 별도 프로세스로 시작)
+```
+
+### 추가된 디자인 패턴
+
+| 패턴 | 위치 | 목적 |
+|---|---|---|
+| 전 응답 보안 헤더 | `security_headers.py` | 헤더 설정을 한 곳에 모아 모든 응답에 적용 |
+| 고정 목록 기반 파일 제공 | `routes/web.py` | 요청 경로를 파일 경로로 쓰지 않아 경로 탈출 차단 |
+| 텍스트 전용 화면 갱신 | `web/app.js` | 서버 문자열을 텍스트로만 삽입 (XSS 방지) |
+| 단일 호출 경로 | `web/app.js` `callApi` | 제한 시간과 실패 분류를 한 곳에서 처리 |
+| 순수 계산과 부수 효과 분리 | `launcher.py` | 포트 선택 등을 네트워크 없이 테스트 |

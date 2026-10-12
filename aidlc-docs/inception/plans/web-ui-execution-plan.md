@@ -157,19 +157,19 @@ Workflow Planning -> Functional Design -> NFR Requirements -> NFR Design
 ### 🟢 CONSTRUCTION PHASE (유닛: web-ui)
 - [x] Functional Design - EXECUTE (COMPLETED)
   - **근거**: 화면의 상태와 전환(키 입력, 목록, 오류), 컴포넌트 구성, 사용자 동작별 흐름, 실행 파일의 판단 로직(이미 실행 중인지 확인, 빈 포트 선택, 키 생성과 복사)을 정해야 한다. 프런트엔드가 있으므로 프런트엔드 컴포넌트 문서도 작성한다. 키 보관의 오용 시나리오(SECURITY-11)와 테스트 가능한 속성(PBT)도 여기서 식별한다
-- [ ] NFR Requirements - EXECUTE
+- [x] NFR Requirements - EXECUTE (COMPLETED)
   - **근거**: Playwright 실행 환경(WSL 시스템 라이브러리, CI 구성)을 사용자에게 확인해야 한다. 추가할 테스트 의존성과 버전, 콘텐츠 보안 정책의 구체 값, 제한 시간 수치를 확정한다
-- [ ] NFR Design - EXECUTE
+- [x] NFR Design - EXECUTE (COMPLETED)
   - **근거**: HTML 보안 헤더 적용 방식(기존 요청 훅 수정), 정적 파일 제공과 경로 탈출 차단, 브라우저 키 보관, 화면의 오류 처리와 제한 시간 패턴을 설계에 반영한다
 - [ ] Infrastructure Design - SKIP
   - **근거**: 로컬 PC 전용으로 배포 인프라가 없다. 1차와 같다
-- [ ] Code Generation - EXECUTE (ALWAYS)
+- [x] Code Generation - EXECUTE (ALWAYS) (COMPLETED)
   - **근거**: 계획 수립 후 화면 파일, 라우트, 실행 파일, 테스트, 문서를 생성하고 기존 파일을 수정한다
-- [ ] Build and Test - EXECUTE (ALWAYS)
+- [x] Build and Test - EXECUTE (ALWAYS) (COMPLETED)
   - **근거**: 기존 161개 회귀, 새 서버 쪽 테스트, 브라우저 자동화 테스트, 취약점 스캔, 실행 파일 수동 확인 절차
 
 ### 🟡 OPERATIONS PHASE
-- [ ] Operations - PLACEHOLDER
+- [x] Operations - PLACEHOLDER (수행할 활동 없음)
   - **근거**: 향후 배포 및 모니터링 워크플로용 자리표시자
 
 ## 변경 순서 (Brownfield)

@@ -1,6 +1,6 @@
 # 단위 테스트 실행 지침
 
-테스트는 pytest로 실행한다. 예제 기반 테스트와 속성 기반 테스트(Hypothesis)가 같은 명령으로 함께 실행된다.
+테스트는 pytest로 실행한다. 예제 기반 테스트, 속성 기반 테스트(Hypothesis), 화면 테스트(Playwright)가 같은 명령으로 함께 실행된다.
 테스트마다 임시 DB를 쓰므로 실제 DB(`instance/todo.db`)에는 영향이 없고 환경 변수도 필요 없다.
 
 ## 실행
@@ -52,10 +52,10 @@
 | `test_properties.py` | 9 | 속성 기반 | P-01~P-09 (상태 기반 모델 포함) |
 | `test_resilience.py` | 5 | 복원력 | RT-01~04 |
 | `test_backup.py` | 7 | 복원력 | RT-05~07, 파일 권한, 명령줄 |
-| **합계** | **161** | | |
+| **1차 워크플로 합계** | **161** | | |
 
 ## 결과 확인
-- **기대 결과**: `161 passed`, 실패 0. 실행 시간 약 11초
+- **기대 결과**: `298 passed`, 실패 0. 실행 시간 약 58초 (화면 테스트를 빼면 `238 passed`, 약 15초)
 - **커버리지**: 측정하지 않는다. 커버리지 도구를 의존성에 포함하지 않았다. 필요하면 `pytest-cov`를 `requirements-dev.txt`에 고정해 추가한다
 - **보고서 위치**: 터미널 출력. 파일이 필요하면 `--junitxml=report.xml`을 붙인다
 
@@ -64,3 +64,29 @@
 2. `-x -vv` 옵션으로 첫 실패에서 멈추고 자세히 본다
 3. 속성 기반 테스트라면 출력된 최소 반례와 시드로 재현한다
 4. 코드를 고친 뒤 전체 테스트를 다시 실행한다
+
+## 2차 워크플로(웹 화면)에서 추가된 테스트
+
+### 실행
+```bash
+# 화면 테스트를 빼고 빠르게 (브라우저 불필요)
+.venv/bin/python -m pytest -m "not e2e"
+
+# 실행 로직과 서버 쪽 화면 테스트만
+.venv/bin/python -m pytest tests/test_launcher.py tests/test_launcher_properties.py tests/test_security_headers.py tests/test_web_routes.py
+```
+
+### 추가된 구성
+
+| 파일 | 테스트 수 | 종류 | 대상 |
+|---|---|---|---|
+| `test_security_headers.py` | 13 | 예제 기반 | 모든 종류의 응답에 붙는 보안 헤더, 정책 내용 |
+| `test_web_routes.py` | 27 | 예제 기반 | 화면 파일 제공, 경로 탈출 차단, 공개 범위, 인라인 코드 없음 |
+| `test_launcher.py` | 31 | 예제 기반 | 키 파일, 포트 판정, 시작 흐름, 키 복사, 실제 서버 프로세스 |
+| `test_launcher_properties.py` | 6 | 속성 기반 | WP-01~05 (포트 선택, 키 파일 왕복, 키 생성) |
+| `test_ui_*.py` 4개 | 60 | 화면 (e2e) | `e2e-test-instructions.md` 참고 |
+| **2차 추가 합계** | **137** | | |
+| **전체 합계** | **298** | | |
+
+- 속성 기반 테스트는 이제 두 파일이다: `test_properties.py`(API, 9개)와 `test_launcher_properties.py`(실행 로직, 6개). 시드 지정과 재현 방법은 위와 같다
+- `test_launcher.py`는 실제 소켓을 열고 실제 서버 프로세스를 띄운다. 임의의 빈 포트와 임시 디렉터리를 쓰므로 실행 중인 서버와 실제 DB에 영향이 없다
