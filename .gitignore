@@ -13,6 +13,7 @@ __pycache__/
 # 테스트 캐시
 .pytest_cache/
 .hypothesis/
+test-results/
 
 # 로컬 환경 변수 파일 (API 키 포함 가능)
 .env

@@ -4,13 +4,17 @@ from __future__ import annotations
 
 import logging
 import secrets
+import sqlite3
 import tempfile
+import threading
 from collections.abc import Iterator
 from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
 from hypothesis import settings
+from werkzeug.serving import make_server
 
 from todo_api.app import create_app
 from todo_api.config import Config
@@ -100,3 +104,136 @@ def create(client):
         return response.get_json()
 
     return _create
+
+
+# --- 브라우저 테스트 장치 (Playwright) ---
+
+
+@dataclass
+class LiveServer:
+    """임의의 빈 포트에서 실제로 돌고 있는 앱."""
+
+    url: str
+    config: Config
+    app: object
+
+    @property
+    def page_url(self) -> str:
+        return f"{self.url}/api_test"
+
+    def seed(self, *titles: str) -> list[dict]:
+        """화면을 거치지 않고 API로 준비 데이터를 넣는다. 넣은 순서대로 돌려준다."""
+        client = self.app.test_client()
+        created = []
+        for title in titles:
+            response = client.post("/todos", json={"title": title}, headers=AUTH)
+            assert response.status_code == 201, response.get_data(as_text=True)
+            created.append(response.get_json())
+        return created
+
+    def complete(self, todo: dict) -> None:
+        response = self.app.test_client().patch(
+            f"/todos/{todo['id']}", json={"completed": True}, headers=AUTH
+        )
+        assert response.status_code == 200
+
+    def delete(self, todo: dict) -> None:
+        response = self.app.test_client().delete(f"/todos/{todo['id']}", headers=AUTH)
+        assert response.status_code == 204
+
+    def seed_many(self, count: int) -> None:
+        """많은 항목은 DB에 직접 넣는다."""
+        rows = [
+            (f"할 일 {index:04d}", f"2026-01-01T00:{index // 60:02d}:{index % 60:02d}.000000Z")
+            for index in range(count)
+        ]
+        conn = sqlite3.connect(self.config.db_path)
+        try:
+            with conn:
+                conn.executemany(
+                    "INSERT INTO todos (title, completed, created_at) VALUES (?, 0, ?)", rows
+                )
+        finally:
+            conn.close()
+
+    def titles(self) -> list[str]:
+        response = self.app.test_client().get("/todos", headers=AUTH)
+        return [todo["title"] for todo in response.get_json()["todos"]]
+
+
+@contextmanager
+def running_server(config: Config) -> Iterator[LiveServer]:
+    """주어진 설정의 앱을 임의의 빈 포트에 띄운다."""
+    app = create_app(config)
+    server = make_server("127.0.0.1", 0, app, threaded=True)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        yield LiveServer(f"http://127.0.0.1:{server.server_port}", config, app)
+    finally:
+        server.shutdown()
+        thread.join()
+
+
+@pytest.fixture
+def live_server(tmp_path: Path) -> Iterator[LiveServer]:
+    with running_server(make_config(tmp_path)) as server:
+        yield server
+
+
+class Ui:
+    """화면 조작 도우미. 요소는 data-testid로만 찾는다."""
+
+    def __init__(self, page, server: LiveServer) -> None:
+        self.page = page
+        self.server = server
+        self.problems: list[str] = []
+        self.requests: list[str] = []
+        page.on("console", self._on_console)
+        page.on("pageerror", lambda error: self.problems.append(f"pageerror: {error}"))
+        page.on("request", lambda request: self.requests.append(request.url))
+
+    def _on_console(self, message) -> None:
+        # 4xx/5xx 응답을 받으면 브라우저가 남기는 기록은 의도한 상황이라 제외한다.
+        # 콘텐츠 보안 정책 위반과 스크립트 오류는 여기서 걸린다.
+        if message.type == "error" and not message.text.startswith("Failed to load resource"):
+            self.problems.append(f"console: {message.text}")
+
+    def tid(self, name: str):
+        return self.page.get_by_test_id(name)
+
+    def open(self) -> None:
+        self.page.goto(self.server.page_url)
+
+    def login(self) -> None:
+        """키를 입력해 목록 화면까지 간다."""
+        self.open()
+        self.tid("key-form-input").fill(TEST_API_KEY)
+        self.tid("key-form-submit-button").click()
+        self.tid("list-view").wait_for(state="visible")
+
+    def item(self, title: str):
+        return self.tid("todo-item").filter(
+            has=self.tid("todo-item-title").get_by_text(title, exact=True)
+        )
+
+    def titles(self) -> list[str]:
+        return self.tid("todo-item-title").all_inner_texts()
+
+    def add(self, title: str) -> None:
+        self.tid("add-form-input").fill(title)
+        self.tid("add-form-input").press("Enter")
+
+    def stored_key(self) -> str | None:
+        return self.page.evaluate("() => window.localStorage.getItem('todoApiKey')")
+
+    def api_requests(self) -> list[str]:
+        return [url for url in self.requests if "/todos" in url]
+
+
+@pytest.fixture
+def ui(page, live_server: LiveServer) -> Iterator[Ui]:
+    session = Ui(page, live_server)
+    yield session
+    # 스크립트 오류나 콘텐츠 보안 정책 위반이 한 번이라도 있으면 실패다.
+    assert session.problems == []

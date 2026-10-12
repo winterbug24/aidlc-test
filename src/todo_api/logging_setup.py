@@ -110,8 +110,6 @@ def register_request_hooks(app: Flask) -> None:
     @app.after_request
     def finish_request(response):
         response.headers["X-Request-ID"] = g.get("request_id", "")
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Cache-Control"] = "no-store"
         started = g.get("request_started")
         duration_ms = (
             round((time.perf_counter() - started) * 1000, 2) if started else None

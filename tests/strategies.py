@@ -78,3 +78,23 @@ def todos() -> st.SearchStrategy[Todo]:
         completed=st.booleans(),
         created_at=created_at,
     )
+
+
+# --- 실행 로직(launcher)용 제너레이터 ---
+
+
+def port_states() -> st.SearchStrategy[dict]:
+    """후보 포트별 상태 배치: 세 상태의 임의 조합, 포트 0~10개."""
+    from todo_api.launcher import PortState
+
+    return st.dictionaries(
+        keys=st.integers(min_value=8000, max_value=8009),
+        values=st.sampled_from(list(PortState)),
+        max_size=10,
+    )
+
+
+def api_keys() -> st.SearchStrategy[str]:
+    """유효한 API 키: 32자 이상, 키 생성기가 쓰는 URL 안전 문자 집합."""
+    alphabet = string.ascii_letters + string.digits + "-_"
+    return st.text(alphabet=alphabet, min_size=32, max_size=128)

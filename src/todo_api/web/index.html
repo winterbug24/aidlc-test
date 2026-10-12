@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>할 일</title>
+  <!-- 빈 아이콘 선언: 브라우저가 /favicon.ico를 따로 요청하지 않게 한다 -->
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/api_test/app.css">
+  <script src="/api_test/app.js" defer></script>
+</head>
+<body>
+  <main class="page">
+    <h1 class="page-title">할 일</h1>
+
+    <div id="notice" class="notice" data-testid="notice" hidden>
+      <strong id="notice-label" class="notice-label"></strong>
+      <span id="notice-message" class="notice-message" data-testid="notice-message"></span>
+      <button type="button" id="notice-close" class="button button-quiet"
+              data-testid="notice-close-button" aria-label="안내 닫기">닫기</button>
+    </div>
+
+    <p id="starting" class="status" role="status">불러오는 중...</p>
+
+    <section id="key-view" class="card" data-testid="key-view" aria-labelledby="key-heading" hidden>
+      <h2 id="key-heading" class="section-title">API 키 입력</h2>
+      <form id="key-form" class="row" autocomplete="off">
+        <label for="key-input" class="visually-hidden">API 키</label>
+        <!-- 비밀번호 칸으로 두면 브라우저가 저장을 제안하므로, 일반 칸을 가려서 보여 준다 -->
+        <input id="key-input" class="input input-masked" type="text" autocomplete="off"
+               autocapitalize="off" spellcheck="false" placeholder="API 키"
+               data-testid="key-form-input">
+        <button type="submit" id="key-submit" class="button button-primary"
+                data-testid="key-form-submit-button">확인</button>
+      </form>
+      <p class="hint">서버의 API 키를 붙여넣으세요. 이 브라우저에 저장됩니다.</p>
+    </section>
+
+    <section id="list-view" data-testid="list-view" aria-label="할 일 목록" hidden>
+      <form id="add-form" class="row" autocomplete="off">
+        <label for="add-input" class="visually-hidden">새 할 일</label>
+        <input id="add-input" class="input" type="text" maxlength="200" autocomplete="off"
+               placeholder="할 일을 입력하세요" data-testid="add-form-input">
+        <button type="submit" id="add-submit" class="button button-primary"
+                data-testid="add-form-submit-button">추가</button>
+      </form>
+
+      <div class="toolbar">
+        <div class="filters" role="group" aria-label="필터">
+          <button type="button" class="button filter-button" data-filter="all"
+                  aria-pressed="true" data-testid="filter-all-button">전체</button>
+          <button type="button" class="button filter-button" data-filter="pending"
+                  aria-pressed="false" data-testid="filter-pending-button">미완료</button>
+          <button type="button" class="button filter-button" data-filter="completed"
+                  aria-pressed="false" data-testid="filter-completed-button">완료</button>
+        </div>
+        <div class="toolbar-actions">
+          <button type="button" id="refresh-button" class="button"
+                  data-testid="refresh-button">새로고침</button>
+          <button type="button" id="clear-key-button" class="button button-quiet"
+                  data-testid="clear-key-button">키 지우기</button>
+        </div>
+      </div>
+
+      <p id="loading" class="status" role="status" data-testid="loading-indicator" hidden>불러오는 중...</p>
+      <ul id="todo-list" class="todo-list" data-testid="todo-list"></ul>
+      <p id="empty-state" class="empty" data-testid="empty-state" hidden></p>
+    </section>
+  </main>
+
+  <template id="todo-item-template">
+    <li class="todo-item" data-testid="todo-item">
+      <label class="todo-label">
+        <input type="checkbox" class="todo-checkbox" data-testid="todo-item-checkbox">
+        <span class="todo-title" data-testid="todo-item-title"></span>
+      </label>
+      <button type="button" class="button button-quiet button-danger"
+              data-testid="todo-item-delete-button">삭제</button>
+    </li>
+  </template>
+
+  <dialog id="confirm-dialog" class="dialog" data-testid="confirm-dialog" aria-labelledby="confirm-heading">
+    <h2 id="confirm-heading" class="section-title">할 일 삭제</h2>
+    <p id="confirm-title" class="confirm-title" data-testid="confirm-dialog-title"></p>
+    <p>삭제하면 되돌릴 수 없습니다.</p>
+    <div class="dialog-actions">
+      <button type="button" id="confirm-cancel" class="button"
+              data-testid="confirm-dialog-cancel-button">취소</button>
+      <button type="button" id="confirm-ok" class="button button-danger-solid"
+              data-testid="confirm-dialog-confirm-button">삭제</button>
+    </div>
+  </dialog>
+</body>
+</html>
