@@ -658,3 +658,104 @@
 **Context**: 바로 가기 생성(프로젝트 밖의 Windows 바탕화면에 파일 1개 추가), git 커밋 및 푸시
 
 ---
+
+## 2차 워크플로 완료 후 - 키 복사 바로 가기 생성, 서버 종료 방법 문의
+**Timestamp**: 2026-10-12T08:51:07Z
+**User Input**: "todo-copy-key.bat 바로가기도 만들어주고, 서버 죽일때는 어떻게 해야하지?"
+**AI Response**: "바탕화면에 같은 이름의 바로 가기가 없음을 확인한 뒤 'To-Do 키 복사.lnk' 생성(대상: \\wsl.localhost\Ubuntu\home\winterbug\aidlc-test\todo-copy-key.bat, 시작 위치: 사용자 폴더). 실제 더블클릭은 하지 않음. 서버 종료 방법 안내: 실행 파일로 띄운 경우 실행 창 닫기 또는 Ctrl+C, 그 밖의 경우 WSL에서 pkill -f todo_api.server. 현재 실행 중인 서버(실행 로직 pid 52459, 서버 pid 52484)는 AI 세션이 띄운 것이라 실행 창이 없음을 안내. 서버는 종료하지 않음."
+**Context**: 바로 가기 생성(Windows 바탕화면에 파일 1개 추가), 사용 안내
+
+---
+
+## 3차 워크플로 시작 - 초기 사용자 요청
+**Timestamp**: 2026-10-12T08:58:34Z
+**User Input**: "직접 명령어를 쓰지 말고, 종료 되는 배치도 하나 만들었으면좋겠어"
+**AI Response**: "코드 변경이 필요한 요청이므로 AI-DLC 워크플로로 처리(3차). 규칙 상세와 공통 규칙, 확장 설정은 이 세션에서 이미 로드됨. 환영 메시지는 같은 세션에서 표시했으므로 생략."
+**Context**: 워크플로 시작 (기존 프로젝트에 대한 작은 기능 추가)
+
+---
+
+## INCEPTION - Workspace Detection (3차)
+**Timestamp**: 2026-10-12T08:58:34Z
+**User Input**: (없음 - 자동 진행 단계)
+**AI Response**: "aidlc-state.md 존재: 2차 워크플로는 완료 상태라 재개할 단계가 없고 새 워크플로로 처리. Brownfield. 리버스 엔지니어링 산출물이 있고 2차 워크플로의 코드 변경을 반영해 갱신되어 있으며(기준 커밋 이후 코드 변경 없음) 최신으로 판단하여 Reverse Engineering은 건너뜀. aidlc-state.md를 3차 워크플로 기준으로 갱신하고 2차 기록을 '이전 워크플로 기록'에 추가."
+**Context**: Workspace Detection 완료 - Brownfield, Reverse Engineering 건너뜀, 다음 단계: Requirements Analysis
+
+---
+
+## INCEPTION - Requirements Analysis (3차) - 요구사항 문서 생성 및 승인 요청
+**Timestamp**: 2026-10-12T08:58:34Z
+**User Input**: (없음 - 초기 요청 분석 기반)
+**AI Response**: "의도 분석: 명확성=Clear, 유형=Enhancement, 범위=Single Component, 복잡도=Simple. 깊이=Minimal. 요청의 목적과 결과물이 분명하여 확인 질문 파일은 만들지 않고, 구현을 좌우하는 선택 사항 7건(파일 이름, 종료 대상, 식별 방법, 종료 방식, 확인 질문 없음, 서버 없을 때의 동작, 바탕화면 바로 가기)을 '제안하는 결정'으로 문서에 근거와 함께 기록. aidlc-docs/inception/requirements/stop-server-requirements.md 생성(기능 요구사항 SFR-01~03, 비기능 요구사항 SNFR-01~08). 확장 설정 유지, 차단 발견 없음. User Stories는 기존 스토리 US-04(서버 끄기)의 수단 추가에 해당하는 작은 변경이라 건너뛰기 제안. 승인 요청 제시: 변경 요청 / User Stories 추가 / 승인 후 Workflow Planning. 단계별 승인이 작은 변경에 비해 많다는 점과 일괄 승인 선택지를 함께 안내."
+**Context**: Requirements Analysis 승인 게이트 - 사용자 응답 대기
+
+---
+
+## INCEPTION - Requirements Analysis (3차) - 승인 및 일괄 진행 지시
+**Timestamp**: 2026-10-12T09:03:49Z
+**User Input**: "승인, 끝까지 진행하고 서버 끄는거는 배치파일로 바탕화면에 만드는것까지 해줘"
+**AI Response**: "요구사항 승인 확인. 사용자가 이후 단계를 멈추지 않고 끝까지 진행하도록 명시적으로 지시함. 이에 따라 Workflow Planning, Code Generation 계획, Code Generation 결과, Build and Test의 승인 게이트는 이 지시로 사전 승인된 것으로 처리하고, 각 단계의 문서와 기록은 그대로 남김. 바탕화면 바로 가기 생성도 범위에 포함됨을 확인."
+**Context**: Requirements Analysis 승인 완료, 남은 승인 게이트 사전 승인
+
+---
+
+## INCEPTION - Workflow Planning (3차)
+**Timestamp**: 2026-10-12T09:03:49Z
+**User Input**: (사전 승인: "승인, 끝까지 진행하고 서버 끄는거는 배치파일로 바탕화면에 만드는것까지 해줘")
+**AI Response**: "aidlc-docs/inception/plans/stop-server-execution-plan.md 생성. 위험도 Low. 실행: Code Generation, Build and Test. 건너뜀: User Stories, Application Design, Units Generation, Functional Design, NFR Requirements, NFR Design, Infrastructure Design(근거를 계획에 기록). Mermaid 다이어그램과 텍스트 대안 포함."
+**Context**: Workflow Planning 완료 (사전 승인)
+
+---
+
+## CONSTRUCTION - Code Generation (3차) - Part 1 계획
+**Timestamp**: 2026-10-12T09:03:49Z
+**User Input**: (사전 승인: 위와 같음)
+**AI Response**: "aidlc-docs/construction/plans/stop-server-code-generation-plan.md 생성(5단계, 파일 변경 11건과 프로젝트 밖 바로 가기 1개, SFR-01~03 추적). Part 2 시작."
+**Context**: Code Generation 계획 완료 (사전 승인), 생성 시작
+
+---
+
+## CONSTRUCTION - Code Generation (3차) - Part 2 생성 완료
+**Timestamp**: 2026-10-12T09:10:27Z
+**User Input**: (사전 승인: "승인, 끝까지 진행하고 서버 끄는거는 배치파일로 바탕화면에 만드는것까지 해줘")
+**AI Response**: "계획 5단계 모두 실행하고 체크박스 갱신. launcher.py에 종료 기능(대상 판정, 프로세스 목록, 정상 종료 후 강제 종료, stop 명령) 추가, todo-stop.bat 신규, 테스트 26개 추가(예제 24, 속성 2), README와 지침 문서와 리버스 엔지니어링 문서 갱신, code-summary.md 작성. 검증: pytest 324개 통과, 실행 로직 테스트 3회 반복 통과, pip-audit 취약점 없음. todo-stop.bat을 Windows 명령 해석기로 실제 실행: 실행 중이던 서버(pid 52484)와 그 실행 로직이 종료됨, 서버가 없을 때 안내 확인. 확인 뒤 서버를 8000번에 다시 띄움(실행 로직 pid 61036, 서버 pid 61054). 바탕화면에 같은 이름이 없음을 확인하고 'To-Do 종료.lnk' 생성. 생성 중 고친 문제: 실제 서버 종료 테스트의 타이밍(프로세스 종료 직후 포트 정리 지연). 확인하지 못한 것: 더블클릭 동작, 시작 창의 종료 안내 표시, 강제 종료 경로의 실제 동작. 확장 준수: 차단 발견 없음."
+**Context**: Code Generation 완료 (사전 승인으로 승인 게이트 통과)
+
+---
+
+## Build and Test Stage (3차 워크플로)
+**Timestamp**: 2026-10-12T09:10:27Z
+**Build Status**: Success (의존성 변경 없음, 기존 .venv 사용. 새 가상 환경 설치 확인은 반복하지 않음)
+**Test Status**: 자동 테스트 Pass (pytest 324/324: 기존 298개 회귀 통과, 새 예제 기반 24, 속성 기반 2. pip-audit 취약점 없음). 수동 확인 C-1~C-4는 미수행
+**Files Generated**:
+- stop-server-build-and-test-summary.md (신규)
+- e2e-test-instructions.md (갱신: C-1~C-4)
+- unit-test-instructions.md (갱신: 테스트 수)
+**확장 준수**: Security, Resiliency, PBT(부분) 모두 차단 발견 없음
+**User Input**: (사전 승인: 위와 같음)
+
+---
+
+## OPERATIONS - Operations (PLACEHOLDER) (3차 워크플로)
+**Timestamp**: 2026-10-12T09:10:27Z
+**User Input**: (없음)
+**AI Response**: "Operations 단계는 자리표시자로 수행할 활동 없음. aidlc-state.md를 3차 워크플로 완료로 갱신. git 커밋과 푸시는 수행하지 않음."
+**Context**: 3차 워크플로 완료
+
+---
+
+## 3차 워크플로 완료 후 - 실행 중이던 서버의 종료 감지
+**Timestamp**: 2026-10-12T09:20:11Z
+**User Input**: (없음 - 백그라운드 작업 종료 알림의 결과 기록)
+**AI Response**: "AI 세션이 다시 띄워 둔 서버(실행 로직 pid 61036, 서버 pid 61054)가 외부의 정상 종료 요청(SIGTERM, 종료 코드 -15)으로 끝남. AI가 끈 것이 아님. 실행 로직의 출력에 '서버가 종료되었습니다.'가 남아 있어, 3차 워크플로에서 확인하지 못했던 '서버가 밖에서 종료됐을 때의 안내 표시'가 실제 동작으로 확인됨. 현재 실행 중인 서버 없음(8000번 응답 없음). 누가 어떤 방법으로 껐는지는 확인할 수 없음(바탕화면의 종료 바로 가기 또는 todo-stop.bat일 가능성). 서버를 다시 띄우지 않음."
+**Context**: 상태 기록 (코드 변경 없음)
+
+---
+
+## 3차 워크플로 완료 후 - 커밋 및 푸시 요청
+**Timestamp**: 2026-10-12T09:27:13Z
+**User Input**: "커밋하고 푸시해줘"
+**AI Response**: "커밋되지 않은 변경을 master에 두 개의 커밋으로 기록(종료용 실행 파일의 코드와 테스트, AI-DLC 문서)하고 origin으로 푸시. 이전과 같은 방식(Windows git의 저장된 자격 증명, 해당 명령에 한한 safe.directory 지정). 이 항목은 커밋에 포함되도록 푸시 전에 기록함."
+**Context**: 사용자 요청에 따른 git 커밋 및 푸시
+
+---

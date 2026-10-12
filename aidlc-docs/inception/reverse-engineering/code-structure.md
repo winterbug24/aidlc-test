@@ -113,3 +113,8 @@ launcher.py          -> config (서버는 별도 프로세스로 시작)
 | 텍스트 전용 화면 갱신 | `web/app.js` | 서버 문자열을 텍스트로만 삽입 (XSS 방지) |
 | 단일 호출 경로 | `web/app.js` `callApi` | 제한 시간과 실패 분류를 한 곳에서 처리 |
 | 순수 계산과 부수 효과 분리 | `launcher.py` | 포트 선택 등을 네트워크 없이 테스트 |
+
+## 3차 워크플로(서버 종료용 실행 파일)에서 추가된 것
+- `todo-stop.bat` - Windows 실행 파일. 실행 로직의 `stop` 명령을 호출
+- `src/todo_api/launcher.py`에 `stop` 명령 추가: `ProcessInfo`, `is_project_server`, `select_project_servers`(순수 함수), `list_processes`, `is_running`, `stop_processes`, `run_stop`
+- 종료 대상은 현재 사용자의 프로세스 중 실행 인자에 `-m todo_api.server`가 있고 작업 폴더가 프로젝트 폴더인 것
