@@ -1,4 +1,4 @@
-"""Windows 실행 파일이 호출하는 실행 로직: python -m todo_api.launcher {start,copy-key}
+"""Windows 실행 파일이 호출하는 실행 로직: python -m todo_api.launcher {start,copy-key,stop}
 
 세 층으로 나눈다.
 - 순수 계산: 포트 선택, 키 파일 형식, 키 생성
@@ -36,10 +36,12 @@ DEFAULT_PORT = CANDIDATE_PORTS[0]
 WEB_PATH = "/api_test"
 KEY_FILE_NAME = ".env"
 KEY_VARIABLE = "TODO_API_KEY"
+SERVER_MODULE = "todo_api.server"
 
 PROBE_TIMEOUT_SECONDS = 1.0
 READY_TIMEOUT_SECONDS = 20.0
 READY_INTERVAL_SECONDS = 0.5
+STOP_TIMEOUT_SECONDS = 5.0
 
 # 경로 검색 순서에 따라 다른 프로그램이 실행되지 않게 절대 경로로 부른다.
 WINDOWS_DIR = Path("/mnt/c/Windows")
@@ -282,7 +284,7 @@ def start_server(port: int, key: str) -> subprocess.Popen:
         "PYTHONPATH": str(source_dir),
     }
     return subprocess.Popen(
-        [sys.executable, "-m", "todo_api.server"],
+        [sys.executable, "-m", SERVER_MODULE],
         cwd=PROJECT_ROOT,
         env=env,
         # 요청 로그가 창을 채우지 않게 한다. 로그는 로그 파일에 남는다.
@@ -302,6 +304,111 @@ def stop_server(process: subprocess.Popen) -> None:
         process.wait()
 
 
+# --- 실행 중인 서버 찾기와 종료 ---
+
+
+@dataclass(frozen=True)
+class ProcessInfo:
+    pid: int
+    uid: int
+    argv: tuple[str, ...]
+    cwd: str | None
+
+
+def is_project_server(info: ProcessInfo, project_root: Path, uid: int) -> bool:
+    """이 프로젝트 폴더에서 `python -m todo_api.server`로 실행된 내 프로세스인가.
+
+    이름의 일부 일치가 아니라 실행 인자와 작업 폴더의 정확한 일치로 판정한다.
+    다른 프로그램, 다른 폴더, 다른 사용자의 프로세스를 끄지 않기 위해서다.
+    """
+    if info.uid != uid or info.cwd is None or info.cwd != str(project_root):
+        return False
+    # argv[0]은 실행 파일이다. 그 뒤에 "-m", "todo_api.server"가 연속으로 있어야 한다.
+    return any(
+        info.argv[index] == "-m" and info.argv[index + 1] == SERVER_MODULE
+        for index in range(1, len(info.argv) - 1)
+    )
+
+
+def select_project_servers(
+    processes: Iterable[ProcessInfo], project_root: Path, uid: int
+) -> list[int]:
+    """종료 대상 프로세스 번호를 오름차순으로 돌려준다 (순수 계산)."""
+    return sorted(
+        info.pid for info in processes if is_project_server(info, project_root, uid)
+    )
+
+
+def list_processes(proc_dir: Path = Path("/proc")) -> list[ProcessInfo]:
+    """실행 중인 프로세스 목록을 읽는다 (Linux/WSL). 읽는 사이 끝난 프로세스는 건너뛴다."""
+    processes: list[ProcessInfo] = []
+    for entry in proc_dir.iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            raw = (entry / "cmdline").read_bytes()
+            uid = entry.stat().st_uid
+        except OSError:
+            continue
+        try:
+            cwd: str | None = os.readlink(entry / "cwd")
+        except OSError:
+            cwd = None
+        argv = tuple(part.decode("utf-8", errors="replace") for part in raw.split(b"\0") if part)
+        processes.append(ProcessInfo(int(entry.name), uid, argv, cwd))
+    return processes
+
+
+def is_running(pid: int, proc_dir: Path = Path("/proc")) -> bool:
+    """프로세스가 아직 돌고 있는가. 끝났지만 정리되지 않은 것(좀비)은 끝난 것으로 본다."""
+    try:
+        stat = (proc_dir / str(pid) / "stat").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+    # 형식: "pid (이름) 상태 ...". 이름에 괄호가 들어갈 수 있어 마지막 ')' 뒤를 본다.
+    state = stat.rpartition(")")[2].split()[:1]
+    return state != ["Z"]
+
+
+def stop_processes(
+    pids: Iterable[int],
+    *,
+    timeout: float = STOP_TIMEOUT_SECONDS,
+    sleep: Callable[[float], None] = time.sleep,
+    clock: Callable[[], float] = time.monotonic,
+    running: Callable[[int], bool] = is_running,
+    send_signal: Callable[[int, int], None] = os.kill,
+) -> tuple[list[int], list[int]]:
+    """정상 종료를 요청하고, 기다려도 남아 있으면 강제로 끝낸다.
+
+    (끝난 프로세스, 끝내지 못한 프로세스)를 돌려준다.
+    """
+    targets = list(pids)
+
+    def signal_all(signum: int) -> None:
+        for pid in targets:
+            if running(pid):
+                try:
+                    send_signal(pid, signum)
+                except OSError:
+                    pass  # 그사이 끝났거나 권한이 없다. 아래에서 다시 확인한다.
+
+    def wait_for_exit(limit: float) -> None:
+        deadline = clock() + limit
+        while any(running(pid) for pid in targets) and clock() < deadline:
+            sleep(0.1)
+
+    signal_all(signal.SIGTERM)
+    wait_for_exit(timeout)
+    if any(running(pid) for pid in targets):
+        signal_all(signal.SIGKILL)
+        wait_for_exit(1.0)
+
+    remaining = [pid for pid in targets if running(pid)]
+    stopped = [pid for pid in targets if pid not in remaining]
+    return stopped, remaining
+
+
 @dataclass
 class Effects:
     """바깥 세계에 영향을 주는 동작. 테스트에서는 가짜로 바꿔 끼운다."""
@@ -314,6 +421,8 @@ class Effects:
     start_server: Callable[[int, str], subprocess.Popen] = start_server
     stop_server: Callable[[subprocess.Popen], None] = stop_server
     wait_until_ready: Callable[..., bool] = wait_until_ready
+    list_processes: Callable[[], list[ProcessInfo]] = list_processes
+    stop_processes: Callable[..., tuple[list[int], list[int]]] = stop_processes
     log_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "logs")
 
 
@@ -381,7 +490,10 @@ def run_start(project_root: Path, effects: Effects) -> int:
             )
         effects.say("이 창을 닫거나 Ctrl+C를 누르면 서버가 꺼집니다.")
         _open_page(port, effects)
-        return process.wait()
+        exit_code = process.wait()
+        # todo-stop.bat 등으로 밖에서 서버를 끈 경우에도 여기로 온다.
+        effects.say("서버가 종료되었습니다.")
+        return exit_code
     except KeyboardInterrupt:
         effects.say("서버를 종료합니다.")
         return 0
@@ -398,13 +510,33 @@ def run_copy_key(project_root: Path, effects: Effects) -> int:
     return 0
 
 
+def run_stop(project_root: Path, effects: Effects) -> int:
+    """이 프로젝트 폴더에서 실행 중인 To-Do 서버를 모두 끈다. API 키는 쓰지 않는다."""
+    targets = select_project_servers(effects.list_processes(), project_root, os.getuid())
+    if not targets:
+        effects.say("실행 중인 서버가 없습니다.")
+        return 0
+
+    stopped, remaining = effects.stop_processes(targets)
+    if stopped:
+        effects.say(f"서버 {len(stopped)}개를 종료했습니다.")
+    if remaining:
+        numbers = ", ".join(str(pid) for pid in remaining)
+        effects.say(
+            f"서버 {len(remaining)}개를 종료하지 못했습니다 (프로세스 번호: {numbers}). "
+            "WSL 터미널에서 직접 확인해 주세요."
+        )
+        return 1
+    return 0
+
+
 def _raise_interrupt(_signum, _frame) -> None:
     raise KeyboardInterrupt
 
 
 def main(argv: list[str] | None = None, effects: Effects | None = None) -> int:
     parser = argparse.ArgumentParser(description="To-Do 서버 실행 도구")
-    parser.add_argument("command", choices=["start", "copy-key"])
+    parser.add_argument("command", choices=["start", "copy-key", "stop"])
     args = parser.parse_args(argv)
     effects = effects or Effects()
 
@@ -415,6 +547,8 @@ def main(argv: list[str] | None = None, effects: Effects | None = None) -> int:
     try:
         if args.command == "start":
             return run_start(PROJECT_ROOT, effects)
+        if args.command == "stop":
+            return run_stop(PROJECT_ROOT, effects)
         return run_copy_key(PROJECT_ROOT, effects)
     except LauncherError as exc:
         effects.say(f"오류: {exc}")

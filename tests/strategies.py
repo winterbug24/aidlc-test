@@ -98,3 +98,35 @@ def api_keys() -> st.SearchStrategy[str]:
     """유효한 API 키: 32자 이상, 키 생성기가 쓰는 URL 안전 문자 집합."""
     alphabet = string.ascii_letters + string.digits + "-_"
     return st.text(alphabet=alphabet, min_size=32, max_size=128)
+
+
+def process_lists(project_root: str, uid: int) -> st.SearchStrategy[list]:
+    """프로세스 목록: 종료 대상과, 대상과 비슷하지만 아닌 것들이 섞여 있다."""
+    from todo_api.launcher import ProcessInfo
+
+    python = st.sampled_from(["python", "/usr/bin/python3", f"{project_root}/.venv/bin/python"])
+    server_argv = python.map(lambda exe: (exe, "-m", "todo_api.server"))
+    other_argv = st.sampled_from(
+        [
+            ("python", "-m", "todo_api.launcher", "start"),
+            ("python", "-m", "todo_api.backup", "backup"),
+            ("bash", "-lc", "python -m todo_api.server"),
+            ("pgrep", "-f", "todo_api.server"),
+            ("python", "todo_api.server"),
+            ("python", "-m"),
+            ("todo_api.server",),
+            (),
+        ]
+    )
+    cwd = st.sampled_from([project_root, f"{project_root}/src", "/tmp", "/", None])
+    return st.lists(
+        st.builds(
+            ProcessInfo,
+            pid=st.integers(min_value=1, max_value=4_000_000),
+            uid=st.sampled_from([uid, uid + 1, 0]),
+            argv=st.one_of(server_argv, other_argv),
+            cwd=cwd,
+        ),
+        max_size=12,
+        unique_by=lambda info: info.pid,
+    )

@@ -6,6 +6,7 @@ import os
 import socket
 import stat
 import threading
+import time
 from contextlib import contextmanager
 
 import pytest
@@ -392,3 +393,192 @@ def test_real_server_process_starts_with_key_from_environment_and_stops(tmp_path
         launcher.stop_server(process)
     assert process.poll() is not None
     assert launcher.is_listening_locally(port) is False
+
+
+# --- 서버 종료 (3차 워크플로) ---
+
+PROJECT = launcher.PROJECT_ROOT
+ME = os.getuid() if hasattr(os, "getuid") else 0
+
+
+def process(pid, argv, cwd=str(PROJECT), uid=ME):
+    return launcher.ProcessInfo(pid=pid, uid=uid, argv=tuple(argv), cwd=cwd)
+
+
+def test_project_server_is_recognised_by_exact_arguments_and_folder():
+    python = str(PROJECT / ".venv/bin/python")
+    assert launcher.is_project_server(process(1, [python, "-m", "todo_api.server"]), PROJECT, ME)
+    assert launcher.is_project_server(process(2, ["python3", "-X", "dev", "-m", "todo_api.server"]), PROJECT, ME)
+
+
+@pytest.mark.parametrize(
+    "info",
+    [
+        # 이름이 인자 문자열 안에만 있는 셸과 검색 명령
+        process(1, ["bash", "-lc", "python -m todo_api.server"]),
+        process(2, ["pgrep", "-f", "todo_api.server"]),
+        # 같은 패키지의 다른 명령
+        process(3, ["python", "-m", "todo_api.launcher", "start"]),
+        process(4, ["python", "-m", "todo_api.backup", "backup"]),
+        # 인자 모양이 다른 것
+        process(5, ["python", "todo_api.server"]),
+        process(6, ["todo_api.server", "-m"]),
+        process(7, ["-m", "todo_api.server"]),
+        process(8, []),
+        # 다른 폴더, 폴더를 알 수 없음, 다른 사용자
+        process(9, ["python", "-m", "todo_api.server"], cwd="/tmp"),
+        process(10, ["python", "-m", "todo_api.server"], cwd=str(PROJECT / "src")),
+        process(11, ["python", "-m", "todo_api.server"], cwd=None),
+        process(12, ["python", "-m", "todo_api.server"], uid=ME + 1),
+    ],
+)
+def test_lookalike_processes_are_never_stop_targets(info):
+    assert launcher.is_project_server(info, PROJECT, ME) is False
+    assert launcher.select_project_servers([info], PROJECT, ME) == []
+
+
+def test_selection_returns_sorted_pids_of_matching_processes_only():
+    processes = [
+        process(30, ["python", "-m", "todo_api.server"]),
+        process(10, ["python", "-m", "todo_api.server"]),
+        process(20, ["python", "-m", "todo_api.launcher", "start"]),
+    ]
+    assert launcher.select_project_servers(processes, PROJECT, ME) == [10, 30]
+
+
+@posix_only
+def test_process_list_contains_this_process_with_its_details():
+    mine = next(info for info in launcher.list_processes() if info.pid == os.getpid())
+    assert mine.uid == os.getuid()
+    assert mine.cwd == os.getcwd()
+    assert mine.argv
+    assert launcher.is_running(os.getpid()) is True
+    assert launcher.is_running(2**22 + 12345) is False
+
+
+def stop_recorder(processes, result=None):
+    recorder = Recorder({})
+    recorder.stop_calls = []
+
+    def fake_stop(pids):
+        recorder.stop_calls.append(list(pids))
+        return result if result is not None else (list(pids), [])
+
+    recorder.effects.list_processes = lambda: processes
+    recorder.effects.stop_processes = fake_stop
+    return recorder
+
+
+def test_stop_ends_every_project_server_and_reports_the_count():
+    recorder = stop_recorder(
+        [
+            process(10, ["python", "-m", "todo_api.server"]),
+            process(11, ["python", "-m", "todo_api.server"]),
+            process(12, ["python", "-m", "todo_api.launcher", "start"]),
+            process(13, ["python", "-m", "todo_api.server"], cwd="/other/project"),
+        ]
+    )
+    assert launcher.run_stop(PROJECT, recorder.effects) == 0
+    assert recorder.stop_calls == [[10, 11]]
+    assert "서버 2개를 종료했습니다." in recorder.output
+
+
+def test_stop_with_nothing_running_says_so_and_touches_nothing():
+    recorder = stop_recorder([process(12, ["python", "-m", "todo_api.launcher", "start"])])
+    assert launcher.run_stop(PROJECT, recorder.effects) == 0
+    assert recorder.stop_calls == []
+    assert "실행 중인 서버가 없습니다." in recorder.output
+
+
+def test_stop_reports_servers_it_could_not_end():
+    recorder = stop_recorder(
+        [process(10, ["python", "-m", "todo_api.server"]), process(11, ["python", "-m", "todo_api.server"])],
+        result=([10], [11]),
+    )
+    assert launcher.run_stop(PROJECT, recorder.effects) == 1
+    assert "서버 1개를 종료했습니다." in recorder.output
+    assert "종료하지 못했습니다" in recorder.output
+    assert "11" in recorder.output
+
+
+def test_stop_does_not_need_or_create_a_key_file(tmp_path):
+    recorder = stop_recorder([])
+    assert launcher.run_stop(tmp_path, recorder.effects) == 0
+    assert not (tmp_path / ".env").exists()
+    assert recorder.copied == []
+
+
+def test_stop_command_is_available_from_the_command_line(monkeypatch):
+    recorder = stop_recorder([])
+    assert launcher.main(["stop"], recorder.effects) == 0
+    assert "실행 중인 서버가 없습니다." in recorder.output
+
+
+def test_graceful_stop_is_tried_first_and_force_is_used_only_if_needed():
+    import signal
+
+    alive = {1: True, 2: True}
+    sent = []
+
+    def send(pid, signum):
+        sent.append((pid, signum))
+        if signum == signal.SIGTERM and pid == 1:
+            alive[1] = False  # 1번은 정상 종료 요청에 바로 끝난다.
+        if signum == signal.SIGKILL:
+            alive[pid] = False
+
+    ticks = iter(range(1000))
+    stopped, remaining = launcher.stop_processes(
+        [1, 2],
+        timeout=3,
+        sleep=lambda _seconds: None,
+        clock=lambda: next(ticks),
+        running=lambda pid: alive[pid],
+        send_signal=send,
+    )
+    assert sent == [(1, signal.SIGTERM), (2, signal.SIGTERM), (2, signal.SIGKILL)]
+    assert (stopped, remaining) == ([1, 2], [])
+
+
+def test_process_that_survives_everything_is_reported_as_remaining():
+    ticks = iter(range(1000))
+    stopped, remaining = launcher.stop_processes(
+        [7],
+        timeout=2,
+        sleep=lambda _seconds: None,
+        clock=lambda: next(ticks),
+        running=lambda pid: True,
+        send_signal=lambda pid, signum: None,
+    )
+    assert (stopped, remaining) == ([], [7])
+
+
+@posix_only
+def test_real_server_started_by_this_test_is_found_and_stopped(tmp_path, monkeypatch):
+    """이 테스트가 직접 띄운 서버만 끈다. 사용자가 실행해 둔 서버는 건드리지 않는다."""
+    port = free_port()
+    monkeypatch.setenv("TODO_DB_PATH", str(tmp_path / "todo.db"))
+    monkeypatch.setenv("TODO_LOG_DIR", str(tmp_path / "logs"))
+    server = launcher.start_server(port, TEST_API_KEY)
+    try:
+        assert wait_until_ready(port, server, timeout=15, interval=0.1) is True
+        found = launcher.select_project_servers(launcher.list_processes(), PROJECT, os.getuid())
+        assert server.pid in found
+
+        stopped, remaining = launcher.stop_processes([server.pid])
+        assert (stopped, remaining) == ([server.pid], [])
+        # 정상 종료 요청(SIGTERM)으로 끝났다. 강제 종료가 필요하지 않았다.
+        assert server.wait(timeout=5) == -15
+        # 프로세스가 끝난 직후에는 포트 정리가 잠깐 늦을 수 있어 잠시 기다려 확인한다.
+        deadline = time.monotonic() + 3
+        while launcher.is_listening_locally(port) and time.monotonic() < deadline:
+            time.sleep(0.05)
+        assert launcher.is_listening_locally(port) is False
+    finally:
+        launcher.stop_server(server)
+
+
+def test_start_reports_when_the_server_was_stopped_from_outside(tmp_path):
+    recorder = Recorder(all_ports(PortState.FREE))
+    assert run_start(tmp_path, recorder.effects) == 0
+    assert "서버가 종료되었습니다." in recorder.output
