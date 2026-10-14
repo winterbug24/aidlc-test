@@ -900,3 +900,101 @@
 **Context**: 사용자 요청에 따른 git 커밋 및 푸시
 
 ---
+
+## 4차 워크플로 완료 후 - 폴더 이동 가능 여부 문의
+**Timestamp**: 2026-10-14T07:52:00Z
+**User Input**: "해당 내용의 폴더를 다른 폴더로 이동해도 똑같이 작동 할까? 네트워크 드라이브쪽 말고, 실제 mnt://d: 쪽으로 이동하고싶어"
+**AI Response**: "코드와 환경 확인 후 답변(코드 변경 없음). 그대로 옮기면 안 되는 것: 배치 파일 3개(:locate가 \\\\wsl.localhost 또는 \\\\wsl$ 경로만 허용해 D:\\에서는 안내 후 종료), .venv(스크립트에 /home/winterbug/aidlc-test 절대 경로가 박혀 있어 재생성 필요), 바탕화면 바로 가기 3개(옛 경로). /mnt/d(9p, metadata 옵션 없음)에서 직접 시험: SQLite WAL과 동시 쓰기 200건은 정상, 0600으로 만든 파일이 0777이 되어 키(.env)·DB·로그·백업의 소유자 전용 권한이 적용되지 않음(파일 권한을 검사하는 테스트도 실패 예상). 시험용 임시 폴더는 삭제. 선택지 안내: 현재 위치 유지 권장, 또는 배치 파일 수정과 venv 재생성을 포함한 이동 작업."
+**Context**: 정보 문의 (코드 변경 없음)
+
+---
+
+## 5차 워크플로 시작 - 초기 사용자 요청
+**Timestamp**: 2026-10-14T07:53:25Z
+**User Input**: "D:\workspace\to_do  이 경로로 이동 시켜주고, 바탕화면에 바로가기 해주고, 정상작동 여부 테스트까지 끝내주고 기존 이 폴더 파일은 삭제 진행해줘"
+**AI Response**: "코드 변경(배치 파일의 경로 판별)이 필요한 요청이므로 AI-DLC 워크플로로 처리(5차). 규칙과 확장 설정은 이 세션에서 이미 로드됨, 환영 메시지는 같은 세션에서 표시했으므로 생략. 사용자가 이동, 바로 가기, 테스트, 기존 폴더 삭제까지 끝까지 진행을 명시했으므로 이후 승인 게이트는 이 지시로 사전 승인된 것으로 처리하고 각 단계의 문서와 기록은 남김. 대상 폴더 D:\workspace\to_do는 이미 존재하며 비어 있음을 확인(파일 0개). 바탕화면 바로 가기 3개(To-Do 시작/종료/키 복사)가 옛 경로를 가리킴을 확인."
+**Context**: 워크플로 시작 (프로젝트 위치 이전)
+
+---
+
+## INCEPTION - Workspace Detection (5차)
+**Timestamp**: 2026-10-14T07:53:25Z
+**User Input**: (없음 - 자동 진행 단계)
+**AI Response**: "4차 워크플로 완료 상태, 새 워크플로로 처리. Brownfield. 리버스 엔지니어링 산출물은 4차에서 갱신되어 최신이므로 건너뜀."
+**Context**: Workspace Detection 완료, 다음 단계: Requirements Analysis
+
+---
+
+## INCEPTION - Requirements Analysis (5차) - 요구사항 문서 생성 (사전 승인)
+**Timestamp**: 2026-10-14T07:53:25Z
+**User Input**: (사전 승인: 초기 요청)
+**AI Response**: "의도 분석: 명확성=Clear(경로, 바로 가기, 테스트, 삭제가 모두 명시), 유형=Migration(위치 이전) + Enhancement(배치 파일), 범위=Single Component(배치 파일 3개) + 환경 작업, 복잡도=Simple~Moderate(되돌릴 수 없는 기존 폴더 삭제 포함). 깊이=Minimal. 확인 질문 파일 없이 결정 사항을 근거와 함께 문서에 기록: aidlc-docs/inception/requirements/relocate-requirements.md. User Stories 건너뜀."
+**Context**: Requirements Analysis 완료 (사전 승인)
+
+---
+
+## INCEPTION - Workflow Planning (5차)
+**Timestamp**: 2026-10-14T07:56:00Z
+**User Input**: (사전 승인: 초기 요청)
+**AI Response**: "aidlc-docs/inception/plans/relocate-execution-plan.md 생성. 위험도 Medium(기존 폴더 삭제는 되돌릴 수 없음), 완화: 백업 후 복사, 모든 확인 뒤 마지막에 삭제, 실패 시 삭제하지 않음. 실행: Code Generation, Build and Test. 나머지 조건부 단계 건너뜀(근거 기록)."
+**Context**: Workflow Planning 완료 (사전 승인)
+
+---
+
+## CONSTRUCTION - Code Generation (5차) - Part 1 계획
+**Timestamp**: 2026-10-14T07:56:00Z
+**User Input**: (사전 승인: 초기 요청)
+**AI Response**: "aidlc-docs/construction/plans/relocate-code-generation-plan.md 생성(7단계). Part 2 시작."
+**Context**: Code Generation 계획 완료 (사전 승인)
+
+---
+
+## CONSTRUCTION - Code Generation (5차) - Part 2 생성 완료
+**Timestamp**: 2026-10-14T08:10:00Z
+**User Input**: (사전 승인: "D:\workspace\to_do  이 경로로 이동 시켜주고, 바탕화면에 바로가기 해주고, 정상작동 여부 테스트까지 끝내주고 기존 이 폴더 파일은 삭제 진행해줘")
+**AI Response**: "계획 7단계 모두 실행. 배치 파일 3개의 :locate를 WSL 경로와 드라이브 경로 모두 인식하도록 수정(옛 위치에서 커밋 c9cd136), README 갱신. 생성 중 고친 문제: 수정 스크립트가 'call :locate'에서 잘라 본문이 사라짐 → 실행 오류로 발견, git에서 복원 후 재적용. 옛 위치 서버 정지, DB 백업(todo-20261014T075603242412Z.db), rsync로 복사(.venv와 캐시 제외). HEAD, 미커밋 변경, .env 해시, DB 내용 해시 일치, git fsck 이상 없음. core.filemode=false. icacls로 .env, instance, backups, logs를 현재 사용자와 SYSTEM 전용으로. 가상 환경: pyenv의 3.7.4로 잘못 생성된 것을 지우고 /usr/bin/python3.12로 재생성(ensurepip 없어 옛 환경의 pip --python으로 설치, 패키지 목록 동일). 바탕화면 바로 가기 3개를 새 경로로 재생성. 문서: code-summary.md, aidlc-state.md."
+**Context**: Code Generation 완료 (사전 승인)
+
+---
+
+## Build and Test Stage (5차 워크플로)
+**Timestamp**: 2026-10-14T08:10:00Z
+**Build Status**: Success (새 위치에 가상 환경 생성)
+**Test Status**: 새 위치에서 pytest 343/343 통과(시드 20261014). 첫 실행의 1개 실패는 4차 변경 요청(최대 폭 48rem) 뒤 놓친 화면 테스트 기대값(700px)으로, 768px로 고친 뒤 통과. pip-audit 취약점 없음. 배치 파일 실제 실행: copy-key(옛/새 위치, 클립보드 일치), start(새 위치, 서버 작업 폴더 /mnt/d/workspace/to_do, 할 일 9개), stop(종료와 '서버 없음' 안내), 프로젝트 밖 복사본은 안내 후 종료
+**Files Generated**: relocate-build-and-test-summary.md (신규)
+**확장 준수**: Security, Resiliency, PBT(부분) 모두 차단 발견 없음
+**User Input**: (사전 승인: 위와 같음)
+
+---
+
+## OPERATIONS (5차 워크플로) - 서버 시작과 옛 폴더 삭제
+**Timestamp**: 2026-10-14T08:12:00Z
+**User Input**: (사전 승인: 위와 같음)
+**AI Response**: "todo-start.bat(D:\workspace\to_do)으로 서버 시작, 8000번 응답과 작업 폴더 확인. 옛 폴더에만 있는 파일은 instance/todo.db-shm, -wal뿐(새 위치에서는 정상 종료 시 SQLite가 정리, DB 내용 해시 일치 확인됨)임을 확인한 뒤 /home/winterbug/aidlc-test(214MB, .venv 포함) 삭제. 미커밋: tests/test_ui_display.py와 5차 문서. 커밋 c9cd136은 푸시하지 않음."
+**Context**: 5차 워크플로 완료
+
+---
+
+## 6차 워크플로 - 화면 주소 변경 요청
+**Timestamp**: 2026-10-14T08:06:58Z
+**User Input**: "이거 url 명좀 바꾸자 http://127.0.0.1:8000/api_test  -> http://127.0.0.1:8000/todo_list  이걸로 변경하고 간단테스트 및 진행"
+**AI Response**: "코드 변경이므로 AI-DLC 워크플로(6차)로 처리. '진행' 지시로 승인 게이트 사전 승인, '간단테스트' 지시로 관련 테스트만 실행. Workspace Detection: Brownfield, 리버스 엔지니어링 최신. Requirements Analysis(Minimal): rename-url-requirements.md(UFR-01~03, UNFR-01~03), 옛 주소는 남기지 않음(404). Workflow Planning: 실행 단계 Code Generation, Build and Test만, 계획은 rename-url-code-generation-plan.md에 통합."
+**Context**: 6차 워크플로 시작, Inception 완료 (사전 승인)
+
+---
+
+## 6차 워크플로 - Code Generation, Build and Test 완료
+**Timestamp**: 2026-10-14T08:10:00Z
+**User Input**: (사전 승인: 위와 같음)
+**AI Response**: "routes/web.py(url_prefix), launcher.py(WEB_PATH), web/index.html(파일 경로)을 /todo_list로. 테스트 5개 파일의 기대 주소 변경. 현재 상태 문서(README, 리버스 엔지니어링 4개, 빌드·E2E·보안 지침) 변경, 지난 워크플로 기록 문서는 유지. 관련 테스트(test_web_routes, test_security_headers, test_launcher, test_ui_display) 108개 통과, 전체 테스트는 실행하지 않음. todo-stop.bat/todo-start.bat으로 서버 재시작: /todo_list, app.css, app.js 200, /api_test 404 확인. 확장 준수: 차단 발견 없음."
+**Context**: 6차 워크플로 완료
+
+---
+
+## 6차 워크플로 완료 후 - 커밋 및 푸시 요청
+**Timestamp**: 2026-10-14T08:18:23Z
+**User Input**: "커밋하고 푸시해줘"
+**AI Response**: "남은 변경을 master에 커밋(화면 주소 변경과 테스트 기대값 수정, AI-DLC 5차·6차 문서)하고 이전 커밋 c9cd136과 함께 origin으로 푸시. Windows git(저장된 자격 증명) 사용, 해당 명령에 한해 safe.directory 지정. 이 항목은 커밋에 포함되도록 푸시 전에 기록함."
+**Context**: 사용자 요청에 따른 git 커밋 및 푸시
+
+---

@@ -2,10 +2,10 @@
 
 ## Project Information
 - **Project Name**: Flask To-Do 관리 REST API
-- **현재 워크플로**: 4차 - 할 일 목록에 등록 일자와 완료 일자 표시
+- **현재 워크플로**: 6차 - 화면 주소를 /api_test에서 /todo_list로 변경 (완료)
 - **Project Type**: Brownfield
 - **Start Date**: 2026-10-12T08:58:34Z
-- **Current Stage**: 4차 워크플로 완료 (2026-10-14T07:43:20Z)
+- **Current Stage**: 6차 워크플로 완료 (2026-10-14)
 - **문서 언어**: 한국어
 
 ## Workspace State
@@ -14,7 +14,7 @@
 - **Build System**: pip + requirements.txt (venv)
 - **Project Structure**: 단일 Flask 애플리케이션 (src/todo_api, tests) + 웹 화면(src/todo_api/web) + Windows 실행 파일
 - **Reverse Engineering Needed**: No (산출물이 있고 3차 워크플로의 변경까지 반영해 최신)
-- **Workspace Root**: /home/winterbug/aidlc-test (Windows 경로: \\wsl.localhost\Ubuntu\home\winterbug\aidlc-test)
+- **Workspace Root**: /mnt/d/workspace/to_do (Windows 경로: D:\workspace\to_do). 5차 워크플로(2026-10-14)에서 /home/winterbug/aidlc-test에서 이전
 
 ## Code Location Rules
 - **Application Code**: Workspace root (NEVER in aidlc-docs/)
@@ -26,7 +26,7 @@
 - **Artifacts Location**: aidlc-docs/inception/reverse-engineering/
 
 ## Extension Configuration
-1차 워크플로에서 결정한 설정이며 2차, 3차 워크플로에서 그대로 유지했다. 4차 워크플로에서도 유지하기로 했다(확인 질문 Q7:A, 2026-10-14).
+1차 워크플로에서 결정한 설정이며 2차, 3차 워크플로에서 그대로 유지했다. 4차 워크플로에서도 유지하기로 했다(확인 질문 Q7:A, 2026-10-14). 5차 워크플로에서도 그대로 유지한다.
 
 | Extension | Enabled | Decided At |
 |---|---|---|
@@ -34,13 +34,13 @@
 | Resiliency Baseline | Yes | 1차 Requirements Analysis |
 | Property-Based Testing | Partial (PBT-02, 03, 07, 08, 09만 강제, 나머지는 권고) | 1차 Requirements Analysis |
 
-## Stage Progress (4차 워크플로: 등록 일자와 완료 일자 표시)
+## Stage Progress (5차 워크플로: D 드라이브로 이전)
 ### 🔵 INCEPTION PHASE
 - [x] Workspace Detection
 - [x] Reverse Engineering (건너뜀 - 산출물이 최신)
-- [x] Requirements Analysis
+- [x] Requirements Analysis (사전 승인)
 - [x] User Stories (건너뜀)
-- [x] Workflow Planning
+- [x] Workflow Planning (사전 승인)
 - [ ] Application Design - SKIP
 - [ ] Units Generation - SKIP
 
@@ -50,7 +50,7 @@
 - [ ] NFR Design - SKIP
 - [ ] Infrastructure Design - SKIP
 - [x] Code Generation - EXECUTE
-- [x] Build and Test - EXECUTE (자동 테스트 343/343 통과, 수동 확인 D-1~D-6 미수행)
+- [x] Build and Test - EXECUTE (새 위치에서 자동 테스트 343/343 통과, 배치 파일 3개 실제 실행 확인)
 
 ### 🟡 OPERATIONS PHASE
 - [x] Operations - PLACEHOLDER (수행할 활동 없음, 워크플로 종료)
@@ -59,7 +59,7 @@
 - **Lifecycle Phase**: 완료
 - **Current Stage**: 없음 (모든 단계 완료)
 - **Next Stage**: 없음
-- **Status**: 완료. 자동 테스트 343/343 통과. 실제 DB 백업(`backups/todo-20261014T074112862816Z.db`) 후 이전 완료, 새 코드로 서버 실행 중(8000번). 남은 확인 사항: 수동 확인 30항목(e2e-test-instructions.md 2부의 A, B, C, D). git 커밋과 푸시는 2026-10-14 사용자 요청으로 수행
+- **Status**: 완료. 6차: 화면 주소 /todo_list, 관련 테스트 108개 통과, 서버 재시작. 5차: 프로젝트가 D:\workspace\to_do에 있고 서버가 이곳에서 실행 중(8000번), 옛 폴더 삭제. 5차와 6차 변경은 2026-10-14 사용자 요청으로 커밋, 푸시. 남은 수동 확인: e2e-test-instructions.md 2부의 A, B, C, D
 
 ## 이전 워크플로 기록
 
@@ -88,3 +88,18 @@
 - **결과**: 자동 테스트 324/324 통과, origin에 푸시(커밋 95c8910). 푸시 후 GitHub Actions run 38229988033 결과는 미확인
 - **남은 확인 사항**: 수동 확인 24항목(`e2e-test-instructions.md` 2부의 A, B, C)
 - **산출물**: `aidlc-docs/inception/requirements/stop-server-requirements.md`, `aidlc-docs/inception/plans/stop-server-execution-plan.md`, `aidlc-docs/construction/stop-server/`, `aidlc-docs/construction/build-and-test/stop-server-build-and-test-summary.md` (커밋 95c8910 기준)
+
+### 4차 워크플로: 등록 일자와 완료 일자 표시 (완료)
+- **기간**: 2026-10-14T07:25:02Z ~ 2026-10-14T07:43:20Z (변경 요청 반영 07:48:00Z)
+- **유형**: Brownfield, 단일 유닛 `dates`
+- **실행한 단계**: Workspace Detection, Requirements Analysis, Workflow Planning, Code Generation, Build and Test
+- **건너뛴 단계**: Reverse Engineering(산출물 최신), User Stories, Application Design, Units Generation, Functional Design, NFR Requirements, NFR Design, Infrastructure Design
+- **결과**: 자동 테스트 343/343 통과, DB에 completed_at 열 이전, origin에 푸시(커밋 fb5b205)
+- **남은 확인 사항**: 수동 확인 30항목(`e2e-test-instructions.md` 2부의 A, B, C, D)
+- **산출물**: `aidlc-docs/inception/requirements/dates-*.md`, `aidlc-docs/inception/plans/dates-execution-plan.md`, `aidlc-docs/construction/dates/`, `aidlc-docs/construction/build-and-test/dates-build-and-test-summary.md`
+
+### 6차 워크플로: 화면 주소 변경 (완료)
+- **기간**: 2026-10-14T08:06:58Z ~ 2026-10-14T08:10:00Z
+- **실행한 단계**: Workspace Detection, Requirements Analysis(Minimal), Workflow Planning(계획 문서에 통합), Code Generation, Build and Test(관련 테스트만)
+- **결과**: /todo_list 200, /api_test 404, 관련 테스트 108개 통과(전체 테스트는 실행하지 않음)
+- **산출물**: `aidlc-docs/inception/requirements/rename-url-requirements.md`, `aidlc-docs/construction/plans/rename-url-code-generation-plan.md`

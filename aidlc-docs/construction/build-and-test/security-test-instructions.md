@@ -72,7 +72,7 @@ Security Baseline 확장 규칙이 코드에서 지켜지는지 확인하는 절
 
 | 항목 | 방법 | 기대 |
 |---|---|---|
-| 응답 헤더 | 서버 실행 후 `curl -s -D - -o /dev/null http://127.0.0.1:8000/api_test` | `Content-Security-Policy` 등 5종과 `Cache-Control: no-store` |
+| 응답 헤더 | 서버 실행 후 `curl -s -D - -o /dev/null http://127.0.0.1:8000/todo_list` | `Content-Security-Policy` 등 5종과 `Cache-Control: no-store` |
 | 브라우저 개발자 도구 | 화면을 열고 F12의 콘솔 탭 확인 | 정책 위반("Refused to ...") 메시지 없음 |
 | 키 저장 위치 | F12의 애플리케이션 탭에서 로컬 저장소 확인 | `todoApiKey` 한 항목만 있음. "키 지우기" 뒤에는 없음 |
 | 프로세스 인자 | 실행 파일로 서버를 띄운 뒤 WSL에서 `ps -ef \| grep todo_api` | 명령줄에 키가 보이지 않음 |

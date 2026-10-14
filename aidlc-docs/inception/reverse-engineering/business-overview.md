@@ -21,7 +21,7 @@ flowchart LR
 ```text
 사용자 -> HTTP 클라이언트(curl, PowerShell 등) -> To-Do REST API -> SQLite 파일
 사용자 -> 백업 도구(명령줄) -> SQLite 파일
-사용자는 웹 화면(/api_test) 또는 HTTP 클라이언트로 API를 호출한다. (웹 화면은 2차 워크플로에서 추가)
+사용자는 웹 화면(/todo_list) 또는 HTTP 클라이언트로 API를 호출한다. (웹 화면은 2차 워크플로에서 추가)
 ```
 
 ## 비즈니스 설명

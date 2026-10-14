@@ -88,7 +88,7 @@ src/todo_api/
 
 ### 추가된 파일
 - `src/todo_api/security_headers.py` - 모든 응답의 보안 헤더와 캐시 헤더 (기존에 `logging_setup.py`에 있던 헤더 두 개를 옮겨 옴)
-- `src/todo_api/routes/web.py` - `/api_test` 화면 파일 제공 (고정 목록, 공개)
+- `src/todo_api/routes/web.py` - `/todo_list` 화면 파일 제공 (고정 목록, 공개)
 - `src/todo_api/web/index.html`, `app.css`, `app.js` - 화면
 - `src/todo_api/launcher.py` - Windows 실행 파일이 호출하는 실행 로직
 - `todo-start.bat`, `todo-copy-key.bat` - Windows 실행 파일

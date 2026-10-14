@@ -97,10 +97,10 @@
 
 | 주소 | 내용 | 콘텐츠 유형 |
 |---|---|---|
-| `GET /api_test` (끝에 `/`가 있어도 같음) | 화면 문서 | `text/html; charset=utf-8` |
-| `GET /api_test/app.css` | 스타일 | `text/css; charset=utf-8` |
-| `GET /api_test/app.js` | 스크립트 | `text/javascript; charset=utf-8` |
-| `GET /api_test/<그 밖의 이름>` | 404 (공통 JSON 오류 형식) | `application/json` |
+| `GET /todo_list` (끝에 `/`가 있어도 같음) | 화면 문서 | `text/html; charset=utf-8` |
+| `GET /todo_list/app.css` | 스타일 | `text/css; charset=utf-8` |
+| `GET /todo_list/app.js` | 스크립트 | `text/javascript; charset=utf-8` |
+| `GET /todo_list/<그 밖의 이름>` | 404 (공통 JSON 오류 형식) | `application/json` |
 
 기존 엔드포인트 6개의 요청/응답 계약은 바뀌지 않았다.
 
