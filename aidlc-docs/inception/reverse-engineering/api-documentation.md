@@ -16,8 +16,10 @@
 
 ### Todo 표현
 ```json
-{"id": 1, "title": "우유 사기", "completed": false, "created_at": "2026-10-12T05:38:00.676854Z"}
+{"id": 1, "title": "우유 사기", "completed": false, "created_at": "2026-10-12T05:38:00.676854Z", "completed_at": null}
 ```
+
+`completed_at`은 4차 워크플로에서 추가되었다. 완료로 바뀔 때 서버가 기록하고, 해제되면 `null`이 된다.
 
 ### 오류 응답
 ```json
@@ -85,6 +87,7 @@
 | `completed` | 0 또는 1 | 기본값 0 |
 | `created_at` | ISO 8601 UTC 텍스트 | 서버 부여, 불변 |
 | `deleted_at` | ISO 8601 UTC 텍스트 또는 NULL | 논리 삭제 시 기록. API 응답에 노출하지 않음 |
+| `completed_at` | ISO 8601 UTC 텍스트 또는 NULL | 4차 워크플로에서 추가. 완료로 바뀔 때 기록, 해제 시 NULL. 이전 DB에는 서버 시작 시 열을 추가하고 기존 행은 NULL |
 
 - **관계**: 없음
 

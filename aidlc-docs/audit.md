@@ -759,3 +759,144 @@
 **Context**: 사용자 요청에 따른 git 커밋 및 푸시
 
 ---
+
+## 세션 마무리
+**Timestamp**: 2026-10-12T09:28:16Z
+**User Input**: "오늘은 여기까지 하고 내일 이어서 하자"
+**AI Response**: "세션 마무리. 직전 요청 결과: 커밋 07223b5(종료용 실행 파일)와 95c8910(3차 워크플로 문서)을 origin/master로 푸시 완료(046eee5..95c8910). GitHub Actions run 38229988033은 이 시점에 진행 중이라 결과 미확인. 현재 상태: 1차, 2차, 3차 워크플로 모두 완료, 진행 중인 워크플로 없음, 실행 중인 서버 없음. 남은 확인 사항: 수동 확인 24항목(e2e-test-instructions.md 2부의 A, B, C), 방금 푸시한 커밋의 CI 결과. 이 기록으로 audit.md 한 건이 커밋되지 않은 상태로 남음."
+**Context**: 세션 종료, 다음 세션에서 이어서 진행
+
+---
+
+## 4차 워크플로 시작 - 세션 재개 및 사전 질문
+**Timestamp**: 2026-10-14T07:25:02Z
+**User Input**: "현재 폴더에 대해서, 윈도우 상의 절대경로 알려줘"
+**AI Response**: "wslpath로 변환한 경로 \\wsl.localhost\Ubuntu\home\winterbug\aidlc-test 안내 (코드 변경 없음)."
+**Context**: 세션 재개 후 정보 문의
+
+---
+
+## 4차 워크플로 시작 - 프로젝트 현황 파악 요청
+**Timestamp**: 2026-10-14T07:25:02Z
+**User Input**: "해당 경로에서 작업했던 to-do list 내용 파악해"
+**AI Response**: "README, aidlc-state.md, audit.md, git 기록을 읽고 1~3차 워크플로 결과와 남은 일(수동 확인 24항목, 3차 푸시의 CI 결과 미확인, audit.md 미커밋 변경 1건, aidlc-state.md의 푸시 미수행 표기가 실제와 다름)을 요약해 안내 (코드 변경 없음)."
+**Context**: 세션 재개 후 현황 파악
+
+---
+
+## 4차 워크플로 시작 - 초기 사용자 요청
+**Timestamp**: 2026-10-14T07:25:02Z
+**User Input**: "현재 http://127.0.0.1:8000/api_test  이 url 로 들어가면, 해당 페이지가 열리는데 작업 리스트에 네모 체크박스 옆에 작업 등록 일자 (yyyy/mm/dd), 완료 일자(yyyy/mm/dd) 포함시켜줘"
+**AI Response**: "코드 변경이 필요한 요청이므로 AI-DLC 워크플로로 처리(4차). 새 세션이므로 규칙 상세(.aidlc-rule-details/)의 공통 규칙과 확장 opt-in 파일을 로드하고 환영 메시지 표시."
+**Context**: 워크플로 시작 (기존 프로젝트에 대한 기능 추가)
+
+---
+
+## INCEPTION - Workspace Detection (4차)
+**Timestamp**: 2026-10-14T07:25:02Z
+**User Input**: (없음 - 자동 진행 단계)
+**AI Response**: "aidlc-state.md 존재: 3차 워크플로는 완료 상태라 재개할 단계가 없고 새 워크플로로 처리. Brownfield. 리버스 엔지니어링 산출물은 3차 워크플로에서 코드 변경을 반영해 갱신되었고 그 뒤 src와 tests 변경 없음(95c8910 이후 변경은 audit.md 뿐)이라 최신으로 판단, Reverse Engineering 건너뜀. aidlc-state.md를 4차 기준으로 갱신하고 3차 기록을 '이전 워크플로 기록'에 추가(3차 푸시 완료 사실 반영)."
+**Context**: Workspace Detection 완료 - Brownfield, 다음 단계: Requirements Analysis
+
+---
+
+## INCEPTION - Requirements Analysis (4차) - 확인 질문 생성
+**Timestamp**: 2026-10-14T07:25:02Z
+**User Input**: (없음 - 초기 요청 분석 기반)
+**AI Response**: "의도 분석: 명확성=대체로 명확(표시 형식은 분명하나 완료 일자의 데이터가 없음), 유형=Enhancement, 범위=Multiple Components(DB 스키마, 저장소, API 응답, 웹 화면), 복잡도=Moderate. 확인 결과 todos 테이블에는 created_at만 있고 완료 시각을 저장하는 열이 없어 완료 일자를 보이려면 스키마 변경(열 추가)과 기존 DB 이전이 필요함. 깊이=Standard. 확인 질문 파일 aidlc-docs/inception/requirements/dates-requirement-verification-questions.md 생성(7문항: 기존 완료 항목의 완료 일자, 완료 해제 시 동작, 날짜 기준 시간대, 미완료 항목의 표시, 배치, API 응답 노출, 확장 설정 유지)."
+**Context**: Requirements Analysis - 확인 질문 답변 대기
+
+---
+
+## INCEPTION - Requirements Analysis (4차) - 답변 수신 및 요구사항 문서 생성
+**Timestamp**: 2026-10-14T07:28:57Z
+**User Input**: "완료"
+**AI Response**: "질문 파일의 답변 확인: Q1 A, Q2 A, Q3 A, Q4 A, Q5 A, Q6 A, Q7 A (모두 권장안 또는 유효한 선택). 모순 검토: Q1-A(완료인데 시각 없음 → '완료 -')와 Q4-A(미완료 → 완료 일자 자리 비움)는 대상이 달라 충돌 없음. Q4-A와 Q5-A(날짜가 제목 앞)를 함께 적용하면 행마다 제목 시작 위치가 달라지므로 '글자 없이 자리 폭 유지'로 해석하고 승인 단계에서 바꿀 수 있는 세부 사항으로 문서에 명시. Q7-A에 따라 확장 설정 유지, 사용 중인 확장의 전체 규칙 파일(security-baseline.md, resiliency-baseline.md, property-based-testing.md) 로드. aidlc-docs/inception/requirements/dates-requirements.md 생성(기능 요구사항 DFR-01~05, 비기능 요구사항 DNFR-01~09). 확장 준수: 차단 발견 없음. User Stories는 기존 스토리 범위 안의 표시 항목 추가이고 사용자 유형이 1명이라 건너뛰기 제안."
+**Context**: Requirements Analysis - 요구사항 문서 생성
+
+---
+
+## INCEPTION - Requirements Analysis (4차) - 승인 요청
+**Timestamp**: 2026-10-14T07:28:57Z
+**User Input**: (없음 - 승인 요청 제시)
+**AI Response**: "승인 요청 제시: 변경 요청 / User Stories 추가 / 승인 후 Workflow Planning."
+**Context**: Requirements Analysis 승인 게이트 - 사용자 응답 대기
+
+---
+
+## INCEPTION - Requirements Analysis (4차) - 승인 및 일괄 진행 지시
+**Timestamp**: 2026-10-14T07:31:10Z
+**User Input**: "승인, 끝까지 진행해주고, 코드 생성 빌드 및 테스트 그리고 서버 스타트까지 완료하고 알려줘"
+**AI Response**: "요구사항 승인 확인(User Stories 건너뜀 확정). 사용자가 이후 단계를 멈추지 않고 끝까지 진행하도록 명시적으로 지시함. 이에 따라 Workflow Planning, Code Generation 계획, Code Generation 결과, Build and Test의 승인 게이트는 이 지시로 사전 승인된 것으로 처리하고, 각 단계의 문서와 기록은 그대로 남김. 서버 시작까지 범위에 포함됨을 확인."
+**Context**: Requirements Analysis 승인 완료, 남은 승인 게이트 사전 승인
+
+---
+
+## INCEPTION - Workflow Planning (4차)
+**Timestamp**: 2026-10-14T07:31:10Z
+**User Input**: (사전 승인: "승인, 끝까지 진행해주고, 코드 생성 빌드 및 테스트 그리고 서버 스타트까지 완료하고 알려줘")
+**AI Response**: "aidlc-docs/inception/plans/dates-execution-plan.md 생성. 위험도 Medium(실사용 DB 구조 변경), 완화책: 열 추가만, 한 트랜잭션, 이전 전 백업. 실행: Code Generation, Build and Test. 건너뜀: User Stories, Application Design, Units Generation, Functional Design, NFR Requirements, NFR Design, Infrastructure Design(근거를 계획에 기록). Mermaid 다이어그램(3차 계획과 같은 검증된 구조)과 텍스트 대안 포함."
+**Context**: Workflow Planning 완료 (사전 승인)
+
+---
+
+## CONSTRUCTION - Code Generation (4차) - Part 1 계획
+**Timestamp**: 2026-10-14T07:31:10Z
+**User Input**: (사전 승인: 위와 같음)
+**AI Response**: "변경 전 기준선 확인: pytest 324개 통과. aidlc-docs/construction/plans/dates-code-generation-plan.md 생성(8단계, 테스트할 속성 4건, 요구사항 추적표). Part 2 시작."
+**Context**: Code Generation 계획 완료 (사전 승인), 생성 시작
+
+---
+
+## CONSTRUCTION - Code Generation (4차) - Part 2 생성 완료
+**Timestamp**: 2026-10-14T07:41:30Z
+**User Input**: (사전 승인: "승인, 끝까지 진행해주고, 코드 생성 빌드 및 테스트 그리고 서버 스타트까지 완료하고 알려줘")
+**AI Response**: "계획 8단계 모두 실행하고 체크박스 갱신. 수정: db.py(SCHEMA에 completed_at, migrate() 신규), serialization.py(Todo.completed_at), repository.py(값이 바뀔 때만 completed와 completed_at 함께 갱신), web/index.html, app.js, app.css(체크 상자와 제목 사이 날짜 묶음, 브라우저 시간대 yyyy/mm/dd, 미완료는 자리만 유지, 체크 상자 이름은 제목·날짜는 설명). 신규 테스트: test_migration.py(6), test_ui_dates.py(9). 기존 테스트 6개 기대값 갱신(응답 필드 추가)과 예제 4개 추가, 생성기와 상태 기반 모델 확장. README, 리버스 엔지니어링 문서 4개, code-summary.md 갱신/작성. 생성 중 고친 문제: 전역 [hidden]{display:none !important} 때문에 미완료 행의 자리가 사라져 제목 위치가 어긋남 → is-blank 클래스(visibility:hidden)로 변경. 자동 브라우저 스크린샷(밝게/어둡게, 800px/360px)으로 줄 맞춤과 줄바꿈 확인(이 환경에 한글 글꼴이 없어 한글은 상자로 보임). 실제 DB를 backups/todo-20261014T074112862816Z.db로 백업, 기존 서버(이전 코드, Windows 실행 창에서 띄운 것)를 launcher stop으로 종료 후 launcher start로 새 코드 서버 시작. db_migrated 이벤트 1회, 이전 전후 행 수 10/완료 6/활성 7 동일, completed_at 모두 NULL, API 응답에 completed_at 포함 확인. 확장 준수: 차단 발견 없음."
+**Context**: Code Generation 완료 (사전 승인으로 승인 게이트 통과)
+
+---
+
+## Build and Test Stage (4차 워크플로)
+**Timestamp**: 2026-10-14T07:43:20Z
+**Build Status**: Success (의존성 변경 없음, 기존 .venv 사용)
+**Test Status**: 자동 테스트 Pass (pytest 343/343, 시드 20261014: 기존 324개 회귀 통과, 새 19개. 화면 제외 274개 통과. pip-audit 취약점 없음). 수동 확인 D-1~D-6은 미수행
+**Files Generated**:
+- dates-build-and-test-summary.md (신규)
+- e2e-test-instructions.md (갱신: D-1~D-6)
+- unit-test-instructions.md (갱신: 테스트 수와 4차 추가 테스트)
+**확장 준수**: Security, Resiliency, PBT(부분) 모두 차단 발견 없음
+**User Input**: (사전 승인: 위와 같음)
+
+---
+
+## OPERATIONS - Operations (PLACEHOLDER) (4차 워크플로)
+**Timestamp**: 2026-10-14T07:43:20Z
+**User Input**: (없음)
+**AI Response**: "Operations 단계는 자리표시자로 수행할 활동 없음. aidlc-state.md를 4차 워크플로 완료로 갱신. 서버는 새 코드로 8000번에서 실행 중. git 커밋과 푸시는 수행하지 않음."
+**Context**: 4차 워크플로 완료
+
+---
+
+## 4차 워크플로 완료 후 - 화면 변경 요청 (Code Generation 변경 요청)
+**Timestamp**: 2026-10-14T07:46:06Z
+**User Input**: "등록일과 완료일이 한줄로 하니까 가독성이 떨어져, 등록 yyyy/mm/dd  다음 줄에 완료 yyyy/mm/dd 로 해서 2줄로 해주고, 내용 적는 칸이 너무 적은것 같으니 살짝 늘려줘, 단순 화면 변경이므로 테스트는 최소한으로 진행해줘"
+**AI Response**: "Code Generation에 대한 변경 요청으로 처리. 요구사항 DFR-04의 배치를 '한 줄'에서 '두 줄(등록 아래 완료)'로 변경하고 구분점 제거. '내용 적는 칸'은 할 일 입력 칸과 목록의 제목 영역으로 해석해, 페이지 최대 폭을 42rem에서 48rem으로 넓혀 둘 다 넓어지게 함. 테스트는 사용자 지시에 따라 최소한으로: 화면 테스트 파일만 실행."
+**Context**: 4차 워크플로 Code Generation 변경 요청 (화면만, 서버 코드와 DB 변경 없음)
+
+---
+
+## 4차 워크플로 완료 후 - 화면 변경 반영 완료
+**Timestamp**: 2026-10-14T07:48:00Z
+**User Input**: (위 요청의 결과)
+**AI Response**: "index.html(구분점 제거), app.js(구분점 처리 제거), app.css(날짜 세로 두 줄, .page 최대 폭 42rem→48rem, 제목 기본 폭 12rem→10rem), test_ui_dates.py(구분점 확인을 두 줄 배치 확인으로 교체) 수정. 요구사항 DFR-04, README, e2e D-2, code-summary.md 갱신. 테스트는 사용자 지시에 따라 test_ui_dates.py 9개만 실행해 통과(전체 테스트 재실행 안 함). 스크린샷(800px/360px)으로 두 줄 배치와 넓어진 폭 확인. 화면 파일은 서버가 요청마다 디스크에서 제공하므로 실행 중인 서버(8000번)에 재시작 없이 반영됨을 확인."
+**Context**: Code Generation 변경 요청 반영 완료
+
+---
+
+## 4차 워크플로 완료 후 - 커밋 및 푸시 요청
+**Timestamp**: 2026-10-14T07:48:07Z
+**User Input**: "커밋 하고 푸시 해줘"
+**AI Response**: "커밋되지 않은 변경을 master에 두 개의 커밋으로 기록(등록 일자와 완료 일자 표시의 코드와 테스트, AI-DLC 문서)하고 origin으로 푸시. 이전과 같은 방식(Windows git의 저장된 자격 증명, 해당 명령에 한한 safe.directory 지정). 이 항목은 커밋에 포함되도록 푸시 전에 기록함. aidlc-state.md의 '커밋과 푸시 미수행' 표기를 갱신."
+**Context**: 사용자 요청에 따른 git 커밋 및 푸시
+
+---
