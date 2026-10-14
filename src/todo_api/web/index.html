@@ -73,7 +73,20 @@
     <li class="todo-item" data-testid="todo-item">
       <label class="todo-label">
         <input type="checkbox" class="todo-checkbox" data-testid="todo-item-checkbox">
-        <span class="todo-title" data-testid="todo-item-title"></span>
+        <span class="todo-body">
+          <!-- 날짜 칸은 가장 긴 값 크기로 자리를 잡아 두어 모든 행의 제목이 같은 위치에서 시작한다 -->
+          <span class="todo-dates" data-testid="todo-item-dates">
+            <span class="todo-date-slot">
+              <span class="todo-date-sizer" aria-hidden="true">등록 0000/00/00</span>
+              <span class="todo-date" data-testid="todo-item-created-date">등록 <time class="todo-created"></time></span>
+            </span>
+            <span class="todo-date-slot">
+              <span class="todo-date-sizer" aria-hidden="true">완료 0000/00/00</span>
+              <span class="todo-date" data-testid="todo-item-completed-date">완료 <time class="todo-completed"></time></span>
+            </span>
+          </span>
+          <span class="todo-title" data-testid="todo-item-title"></span>
+        </span>
       </label>
       <button type="button" class="button button-quiet button-danger"
               data-testid="todo-item-delete-button">삭제</button>

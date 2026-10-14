@@ -6,12 +6,13 @@
 from __future__ import annotations
 
 import sqlite3
+from dataclasses import replace
 
 from todo_api.db import write_transaction
 from todo_api.errors import DuplicateTitle
 from todo_api.serialization import Todo, todo_from_row, utc_now_iso
 
-_COLUMNS = "id, title, completed, created_at"
+_COLUMNS = "id, title, completed, created_at, completed_at"
 
 
 def create_todo(conn: sqlite3.Connection, title: str) -> Todo:
@@ -51,22 +52,23 @@ def get_todo(conn: sqlite3.Connection, todo_id: int) -> Todo | None:
 def set_completed(
     conn: sqlite3.Connection, todo_id: int, completed: bool
 ) -> tuple[Todo | None, bool | None]:
-    """완료 여부를 설정한다. (현재 Todo, 변경 전 값)을 돌려주며 대상이 없으면 (None, None)."""
+    """완료 여부를 설정한다. (현재 Todo, 변경 전 값)을 돌려주며 대상이 없으면 (None, None).
+
+    값이 바뀔 때만 완료 시각을 기록하거나(완료) 지운다(해제). 같은 값을 다시 보내면 그대로 둔다.
+    """
     with write_transaction(conn):
         current = get_todo(conn, todo_id)
         if current is None:
             return None, None
-        if current.completed != completed:
-            conn.execute(
-                "UPDATE todos SET completed = ? WHERE id = ? AND deleted_at IS NULL",
-                (int(completed), todo_id),
-            )
-    updated = Todo(
-        id=current.id,
-        title=current.title,
-        completed=completed,
-        created_at=current.created_at,
-    )
+        if current.completed == completed:
+            return current, current.completed
+        completed_at = utc_now_iso() if completed else None
+        conn.execute(
+            "UPDATE todos SET completed = ?, completed_at = ?"
+            " WHERE id = ? AND deleted_at IS NULL",
+            (int(completed), completed_at, todo_id),
+        )
+    updated = replace(current, completed=completed, completed_at=completed_at)
     return updated, current.completed
 
 

@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import re
 import tempfile
 from pathlib import Path
 
@@ -27,6 +28,8 @@ from strategies import (
 from todo_api.app import create_app
 from todo_api.serialization import todo_from_row, todo_to_dict, todo_to_row
 from todo_api.validation import FieldError, normalize_title
+
+TIMESTAMP = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z")
 
 # 예제마다 앱과 DB를 새로 만들기 때문에 예제 수를 줄인다.
 api_settings = settings(max_examples=30)
@@ -206,8 +209,23 @@ class TodoApiMachine(RuleBasedStateMachine):
             assert response.status_code == 404
             return
         assert response.status_code == 200
-        self.active[todo_id] = {**self.active[todo_id], "completed": completed}
-        assert response.get_json() == self.active[todo_id]
+        before = self.active[todo_id]
+        body = response.get_json()
+        if before["completed"] == completed:
+            # 같은 값을 다시 보내면 완료 시각도 그대로다.
+            assert body == before
+            return
+        if completed:
+            assert TIMESTAMP.fullmatch(body["completed_at"])
+            assert body["completed_at"] >= before["created_at"]
+        else:
+            assert body["completed_at"] is None
+        self.active[todo_id] = {
+            **before,
+            "completed": completed,
+            "completed_at": body["completed_at"],
+        }
+        assert body == self.active[todo_id]
 
     @precondition(lambda self: self.known_ids)
     @rule(index=st.integers(min_value=0))
@@ -233,6 +251,11 @@ class TodoApiMachine(RuleBasedStateMachine):
             assert list_todos(self.client, query) == [
                 todo for todo in expected if todo["completed"] is flag
             ]
+
+    @invariant()
+    def completed_at_is_set_exactly_when_completed(self):
+        for todo in list_todos(self.client):
+            assert (todo["completed_at"] is not None) is todo["completed"]
 
     @invariant()
     def active_titles_are_unique_ignoring_ascii_case(self):

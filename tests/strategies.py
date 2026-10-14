@@ -67,16 +67,24 @@ def unique_titles(max_size: int = 8) -> st.SearchStrategy[list[str]]:
     return st.lists(valid_titles(), unique_by=ascii_fold, max_size=max_size)
 
 
-def todos() -> st.SearchStrategy[Todo]:
-    created_at = st.datetimes(timezones=st.just(timezone.utc)).map(
+def utc_timestamps() -> st.SearchStrategy[str]:
+    """서버가 저장하는 형식의 UTC 시각 문자열 (자릿수 고정)."""
+    return st.datetimes(timezones=st.just(timezone.utc)).map(
         lambda dt: dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     )
-    return st.builds(
-        Todo,
-        id=st.integers(min_value=1, max_value=2**63 - 1),
-        title=valid_titles(),
-        completed=st.booleans(),
-        created_at=created_at,
+
+
+def todos() -> st.SearchStrategy[Todo]:
+    """완료 시각은 완료 여부와 맞춘다: 미완료면 없음, 완료면 시각 또는 없음(이전 전에 완료한 항목)."""
+    return st.booleans().flatmap(
+        lambda completed: st.builds(
+            Todo,
+            id=st.integers(min_value=1, max_value=2**63 - 1),
+            title=valid_titles(),
+            completed=st.just(completed),
+            created_at=utc_timestamps(),
+            completed_at=st.one_of(st.none(), utc_timestamps()) if completed else st.none(),
+        )
     )
 
 

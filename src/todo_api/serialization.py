@@ -14,6 +14,7 @@ class Todo:
     title: str
     completed: bool
     created_at: str
+    completed_at: str | None = None
 
 
 def utc_now_iso() -> str:
@@ -27,6 +28,7 @@ def todo_from_row(row: Mapping[str, Any]) -> Todo:
         title=row["title"],
         completed=bool(row["completed"]),
         created_at=row["created_at"],
+        completed_at=row["completed_at"],
     )
 
 
@@ -36,6 +38,7 @@ def todo_to_row(todo: Todo) -> dict[str, Any]:
         "title": todo.title,
         "completed": int(todo.completed),
         "created_at": todo.created_at,
+        "completed_at": todo.completed_at,
     }
 
 
@@ -46,4 +49,5 @@ def todo_to_dict(todo: Todo) -> dict[str, Any]:
         "title": todo.title,
         "completed": todo.completed,
         "created_at": todo.created_at,
+        "completed_at": todo.completed_at,
     }

@@ -183,11 +183,63 @@
     renderEmptyState();
   }
 
+  // 서버의 UTC 시각(예: 2026-10-14T07:25:02.123456Z)을 이 브라우저 시간대의 날짜로 바꾼다.
+  // 형식이 다르면 null을 돌려주고 화면에는 "-"로 보인다.
+  const UTC_TIMESTAMP = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,9}))?Z$/;
+
+  function localDateParts(timestamp) {
+    const match = typeof timestamp === "string" ? UTC_TIMESTAMP.exec(timestamp) : null;
+    if (!match) {
+      return null;
+    }
+    // 브라우저마다 소수점 아래 자릿수 처리가 달라 밀리초(3자리)까지만 넘긴다.
+    const millis = (match[2] ?? "").slice(0, 3).padEnd(3, "0");
+    const date = new Date(`${match[1]}.${millis}Z`);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+    return [
+      String(date.getFullYear()).padStart(4, "0"),
+      String(date.getMonth() + 1).padStart(2, "0"),
+      String(date.getDate()).padStart(2, "0"),
+    ];
+  }
+
+  function fillDate(timeElement, timestamp) {
+    const parts = localDateParts(timestamp);
+    timeElement.textContent = parts ? parts.join("/") : "-";
+    if (parts) {
+      timeElement.dateTime = parts.join("-");
+    } else {
+      timeElement.removeAttribute("datetime");
+    }
+  }
+
   function fillItem(item, todo) {
+    const titleId = `todo-${todo.id}-title`;
+    const datesId = `todo-${todo.id}-dates`;
     item.dataset.todoId = String(todo.id);
     item.dataset.completed = String(todo.completed);
-    item.querySelector(".todo-checkbox").checked = todo.completed;
-    item.querySelector(".todo-title").textContent = todo.title;
+    const checkbox = item.querySelector(".todo-checkbox");
+    checkbox.checked = todo.completed;
+    // 체크 상자의 이름은 제목, 날짜는 보조 설명으로 읽히게 한다.
+    checkbox.setAttribute("aria-labelledby", titleId);
+    checkbox.setAttribute("aria-describedby", datesId);
+    const title = item.querySelector(".todo-title");
+    title.id = titleId;
+    title.textContent = todo.title;
+    item.querySelector(".todo-dates").id = datesId;
+    fillDate(item.querySelector(".todo-created"), todo.created_at);
+    // 완료: 날짜(기록이 없던 예전 항목은 "-"), 미완료: 글자 없이 자리만 남긴다.
+    const completedDate = item.querySelector('[data-testid="todo-item-completed-date"]');
+    completedDate.classList.toggle("is-blank", !todo.completed);
+    const completedTime = item.querySelector(".todo-completed");
+    if (todo.completed) {
+      fillDate(completedTime, todo.completed_at);
+    } else {
+      completedTime.textContent = "";
+      completedTime.removeAttribute("datetime");
+    }
     item
       .querySelector(".button-danger")
       .setAttribute("aria-label", `삭제: ${todo.title}`);

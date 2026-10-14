@@ -17,11 +17,14 @@ ROW = {
     "title": "우유 사기",
     "completed": 1,
     "created_at": "2026-10-12T05:00:00.000000Z",
+    "completed_at": "2026-10-13T01:30:00.000000Z",
 }
 
 
 def test_row_is_converted_to_todo_with_boolean_flag():
-    assert todo_from_row(ROW) == Todo(3, "우유 사기", True, "2026-10-12T05:00:00.000000Z")
+    assert todo_from_row(ROW) == Todo(
+        3, "우유 사기", True, "2026-10-12T05:00:00.000000Z", "2026-10-13T01:30:00.000000Z"
+    )
 
 
 def test_todo_is_converted_back_to_row():
@@ -35,7 +38,13 @@ def test_api_representation_has_exactly_the_public_fields():
         "title": "우유 사기",
         "completed": True,
         "created_at": "2026-10-12T05:00:00.000000Z",
+        "completed_at": "2026-10-13T01:30:00.000000Z",
     }
+
+
+def test_missing_completion_time_is_null_in_the_api():
+    row = {**ROW, "completed_at": None}
+    assert todo_to_dict(todo_from_row(row))["completed_at"] is None
 
 
 def test_timestamps_are_fixed_width_utc_so_they_sort_chronologically():

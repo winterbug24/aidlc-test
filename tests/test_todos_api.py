@@ -26,8 +26,9 @@ def test_create_returns_201_with_pending_todo(client):
     assert response.status_code == 201
     assert response.mimetype == "application/json"
     body = response.get_json()
-    assert set(body) == {"id", "title", "completed", "created_at"}
+    assert set(body) == {"id", "title", "completed", "created_at", "completed_at"}
     assert (body["id"], body["title"], body["completed"]) == (1, "우유 사기", False)
+    assert body["completed_at"] is None
     assert re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z", body["created_at"])
 
 
@@ -189,11 +190,27 @@ def test_patch_sets_and_unsets_completed(client, create):
     todo = create("a")
     done = client.patch(f"/todos/{todo['id']}", json={"completed": True}, headers=AUTH)
     assert done.status_code == 200
-    assert done.get_json() == {**todo, "completed": True}
+    completed_at = done.get_json()["completed_at"]
+    assert re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z", completed_at)
+    assert done.get_json() == {**todo, "completed": True, "completed_at": completed_at}
 
     undone = client.patch(f"/todos/{todo['id']}", json={"completed": False}, headers=AUTH)
     assert undone.get_json() == todo
     assert client.get(f"/todos/{todo['id']}", headers=AUTH).get_json() == todo
+
+
+def test_completion_time_is_kept_on_repeat_and_renewed_after_unchecking(client, create):
+    todo = create("a")
+    url = f"/todos/{todo['id']}"
+    first = client.patch(url, json={"completed": True}, headers=AUTH).get_json()
+    again = client.patch(url, json={"completed": True}, headers=AUTH).get_json()
+    assert again["completed_at"] == first["completed_at"]
+
+    client.patch(url, json={"completed": False}, headers=AUTH)
+    redone = client.patch(url, json={"completed": True}, headers=AUTH).get_json()
+    assert redone["completed_at"] > first["completed_at"]
+    listed = client.get("/todos", headers=AUTH).get_json()["todos"]
+    assert listed == [redone]
 
 
 def test_patch_same_value_is_idempotent(client, create, events):
@@ -215,6 +232,11 @@ def test_patch_same_value_is_idempotent(client, create, events):
         ({"completed": 1}, [("completed", "invalid_type")]),
         ({"completed": None}, [("completed", "invalid_type")]),
         ({"completed": True, "title": "new"}, [("title", "unknown_field")]),
+        # 완료 시각은 서버만 기록한다.
+        (
+            {"completed": True, "completed_at": "2020-01-01T00:00:00.000000Z"},
+            [("completed_at", "unknown_field")],
+        ),
     ],
 )
 def test_patch_rejects_invalid_body(client, create, body, expected):

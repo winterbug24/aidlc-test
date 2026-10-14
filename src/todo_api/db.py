@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS todos (
     title TEXT NOT NULL CHECK (length(title) BETWEEN 1 AND 200),
     completed INTEGER NOT NULL DEFAULT 0 CHECK (completed IN (0, 1)),
     created_at TEXT NOT NULL,
-    deleted_at TEXT
+    deleted_at TEXT,
+    completed_at TEXT
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_todos_active_title
     ON todos (title COLLATE NOCASE)
@@ -51,8 +52,20 @@ def init_db(db_path: Path, timeout: float) -> None:
     try:
         conn.execute("PRAGMA journal_mode=WAL")
         conn.executescript(SCHEMA)
+        migrate(conn)
     finally:
         conn.close()
+
+
+def migrate(conn: sqlite3.Connection) -> None:
+    """이전 버전이 만든 DB에 없는 열을 추가한다. 열 추가만 하므로 이전 코드로 되돌려도 읽을 수 있다."""
+    with write_transaction(conn):
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(todos)")}
+        if "completed_at" in columns:
+            return
+        # 기존 완료 항목의 완료 시각은 알 수 없으므로 NULL로 둔다.
+        conn.execute("ALTER TABLE todos ADD COLUMN completed_at TEXT")
+    log_event("db_migrated", "DB에 completed_at 열 추가", column="completed_at")
 
 
 def get_db() -> sqlite3.Connection:

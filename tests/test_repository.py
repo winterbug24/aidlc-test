@@ -71,6 +71,23 @@ def test_set_completed_reports_previous_value(conn):
     assert repository.set_completed(conn, 999, True) == (None, None)
 
 
+def test_completion_time_is_recorded_and_cleared(conn):
+    todo = repository.create_todo(conn, "a")
+    assert todo.completed_at is None
+
+    done, _ = repository.set_completed(conn, todo.id, True)
+    assert done.completed_at is not None
+    assert done.completed_at >= todo.created_at
+    assert repository.get_todo(conn, todo.id) == done
+
+    again, _ = repository.set_completed(conn, todo.id, True)
+    assert again.completed_at == done.completed_at
+
+    undone, _ = repository.set_completed(conn, todo.id, False)
+    assert undone.completed_at is None
+    assert repository.get_todo(conn, todo.id) == undone
+
+
 def test_soft_delete_keeps_row_but_hides_it(conn):
     todo = repository.create_todo(conn, "a")
     assert repository.soft_delete(conn, todo.id) is True
