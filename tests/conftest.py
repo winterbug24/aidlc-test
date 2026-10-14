@@ -119,7 +119,7 @@ class LiveServer:
 
     @property
     def page_url(self) -> str:
-        return f"{self.url}/api_test"
+        return f"{self.url}/todo_list"
 
     def seed(self, *titles: str) -> list[dict]:
         """화면을 거치지 않고 API로 준비 데이터를 넣는다. 넣은 순서대로 돌려준다."""

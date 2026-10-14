@@ -29,10 +29,10 @@ def assert_security_headers(response) -> None:
 @pytest.mark.parametrize(
     ("path", "headers", "status"),
     [
-        ("/api_test", {}, 200),
-        ("/api_test/app.css", {}, 200),
-        ("/api_test/app.js", {}, 200),
-        ("/api_test/missing.js", {}, 404),
+        ("/todo_list", {}, 200),
+        ("/todo_list/app.css", {}, 200),
+        ("/todo_list/app.js", {}, 200),
+        ("/todo_list/missing.js", {}, 404),
         ("/health", {}, 200),
         ("/todos", AUTH, 200),
         ("/todos", {}, 401),
@@ -66,7 +66,7 @@ def test_rate_limited_response_carries_security_headers(tmp_path):
     config = make_config(tmp_path, rate_limit_enabled=True, rate_limit_default="1 per hour")
     client = create_app(config).test_client()
     client.get("/health")
-    limited = client.get("/api_test")
+    limited = client.get("/todo_list")
     assert limited.status_code == 429
     assert_security_headers(limited)
 

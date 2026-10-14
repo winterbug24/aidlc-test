@@ -33,7 +33,7 @@ from todo_api.config import MIN_API_KEY_LENGTH, PROJECT_ROOT
 HOST = "127.0.0.1"
 CANDIDATE_PORTS: tuple[int, ...] = tuple(range(8000, 8010))
 DEFAULT_PORT = CANDIDATE_PORTS[0]
-WEB_PATH = "/api_test"
+WEB_PATH = "/todo_list"
 KEY_FILE_NAME = ".env"
 KEY_VARIABLE = "TODO_API_KEY"
 SERVER_MODULE = "todo_api.server"

@@ -142,7 +142,7 @@ def test_windows_listening_ports_are_parsed_from_netstat_output():
 
 
 def test_page_url_never_contains_a_key():
-    assert launcher.page_url(8001) == "http://127.0.0.1:8001/api_test"
+    assert launcher.page_url(8001) == "http://127.0.0.1:8001/todo_list"
 
 
 # --- 키 파일 ---
@@ -265,7 +265,7 @@ def test_first_run_creates_key_copies_it_and_starts_on_default_port(tmp_path):
     key = read_key(tmp_path / ".env")
     assert recorder.copied == [key]
     assert recorder.started == [8000]
-    assert recorder.opened == ["http://127.0.0.1:8000/api_test"]
+    assert recorder.opened == ["http://127.0.0.1:8000/todo_list"]
     assert recorder.process.waited is True
     assert recorder.stopped >= 1
     assert "붙여넣으세요" in recorder.output
@@ -288,7 +288,7 @@ def test_running_server_is_reused_without_starting_another(tmp_path):
     recorder = Recorder(states)
     assert run_start(tmp_path, recorder.effects) == 0
     assert recorder.started == []
-    assert recorder.opened == ["http://127.0.0.1:8003/api_test"]
+    assert recorder.opened == ["http://127.0.0.1:8003/todo_list"]
     assert "이미 실행 중" in recorder.output
 
 
@@ -297,8 +297,8 @@ def test_busy_default_port_falls_back_to_next_free_port_with_a_note(tmp_path):
     recorder = Recorder(states)
     assert run_start(tmp_path, recorder.effects) == 0
     assert recorder.started == [8002]
-    assert recorder.opened == ["http://127.0.0.1:8002/api_test"]
-    assert "http://127.0.0.1:8002/api_test" in recorder.output
+    assert recorder.opened == ["http://127.0.0.1:8002/todo_list"]
+    assert "http://127.0.0.1:8002/todo_list" in recorder.output
     assert "키를 다시 입력" in recorder.output
     assert "todo-copy-key.bat" in recorder.output
 

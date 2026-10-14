@@ -93,7 +93,8 @@ def test_wide_window_keeps_the_content_column_readable(ui):
     ui.page.set_viewport_size({"width": 1920, "height": 1080})
     ui.login()
     box = ui.page.locator("main").bounding_box()
-    assert box["width"] <= 700
+    # 4차 워크플로 변경 요청으로 최대 폭을 48rem(768px)으로 넓혔다.
+    assert box["width"] <= 768
     assert abs((box["x"] + box["width"] / 2) - 960) < 2  # 가운데 정렬
 
 
@@ -209,7 +210,7 @@ def test_first_screen_takes_four_requests_and_no_icon_request(ui):
     expect(ui.tid("list-view")).to_be_visible()
 
     paths = sorted(url.removeprefix(ui.server.url) for url in ui.requests)
-    assert paths == ["/api_test", "/api_test/app.css", "/api_test/app.js", "/todos"]
+    assert paths == ["/todo_list", "/todo_list/app.css", "/todo_list/app.js", "/todos"]
 
 
 def test_idle_screen_sends_no_requests(ui):

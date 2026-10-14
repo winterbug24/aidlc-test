@@ -20,7 +20,7 @@ ASSETS: dict[str, tuple[str, str]] = {
     "app.js": ("app.js", "text/javascript; charset=utf-8"),
 }
 
-bp = Blueprint("web", __name__, url_prefix="/api_test")
+bp = Blueprint("web", __name__, url_prefix="/todo_list")
 
 
 def _send(entry: tuple[str, str]):
