@@ -1022,3 +1022,59 @@
 **Context**: 사용자 요청에 따른 git 커밋 및 푸시, 세션 종료
 
 ---
+
+## 개발 도구 문의 - Tabby 대신 IDE 사용
+**Timestamp**: 2026-10-15T07:24:54Z
+**User Input**: "현재 이런 환경을 구성하기 위해서 tabby -> wsl 입력 -> claude 입력 순으로 들어오는데, tabby 말고, vs code 혹은 eclipse 처럼 프로젝트 단위별 소스코드 기반의 툴을 쓰고싶어 어떤방식이 좋을까?"
+**AI Response**: "코드 변경 없이 안내. 확인: Windows에 VS Code 설치되어 있고 WSL에서 code 명령 사용 가능. 권장: VS Code + WSL 확장(Remote - WSL)으로 프로젝트 폴더를 열고 Claude Code 확장(또는 통합 터미널의 claude) 사용. Eclipse는 Claude Code 공식 연동이 없어 비권장, JetBrains(IntelliJ/PyCharm)는 플러그인 있음. /mnt/d 경로의 파일 접근 속도 차이 설명."
+**Context**: 정보 문의 (코드 변경 없음)
+
+---
+
+## 개발 도구 문의 - VS Code 최소 버전
+**Timestamp**: 2026-10-15T07:27:30Z
+**User Input**: "vs code 의 경우 최소 wsl 과 claude 설치 하기 위한 최소 버전이 어떻게 되지?"
+**AI Response**: "코드 변경 없이 안내. 확인: 설치된 VS Code 1.85.2, WSL 확장 0.81.9 설치됨, WSL2 사용 중. Claude Code 확장 공식 문서 기준 최소 VS Code 1.94.0 필요하므로 현재 버전으로는 설치 불가, VS Code 업데이트 필요. WSL 확장은 마켓플레이스에 최소 버전 명시 없음(최신 0.104.3), VS Code 업데이트 후 확장도 함께 업데이트 권장."
+**Context**: 정보 문의 (코드 변경 없음)
+
+---
+
+## 개발 도구 문의 - VS Code 추가 설치(포터블) 가능 여부
+**Timestamp**: 2026-10-15T07:31:00Z
+**User Input**: "현재 사용하고 있는 vs code 1.85.2 버전은 특정 서버랑 연결되어있어서 버전업은 불가능해, 현재 설치된 버전이 전역변수로 잡혀있는것 같은데, 추가로 미설치 실행 버전을 연결하면 사용 가능할까?"
+**AI Response**: "코드 변경 없이 안내. 확인: WSL의 code 명령은 Windows PATH의 설치본(1.85.2)만 가리킴, bin/code 스크립트는 자신과 같은 폴더의 실행 파일 기준으로 WSL 확장을 찾음, WSL 쪽 VS Code Server는 커밋별 폴더(~/.vscode-server/bin)로 분리됨. 안내: 최신 VS Code zip 버전을 별도 폴더에 풀고 data 폴더를 만들어 포터블 모드로 사용(설정과 확장 분리), PATH는 건드리지 않고 별칭(code2)으로 실행. 대안: 1.85.2의 통합 터미널에서 claude CLI만 사용. 회사 정책상 추가 설치 허용 여부 확인 권장."
+**Context**: 정보 문의 (코드 변경 없음)
+
+---
+
+## 개발 도구 문의 - 포터블 VS Code 버전 및 적합성 판단
+**Timestamp**: 2026-10-15T07:33:00Z
+**User Input**: "현재 D:\098. 설치파일\vscode_portable 이 폴더에 code.exe 를 실행하면 새로운 vs code 가 있어, 현재 여기 환경에서는 이걸 기본으로 하게 하고싶어, 해당 내용 버전 및 적합 유무 판단해줘"
+**AI Response**: "코드 변경 없이 확인 결과 안내. 확인: 버전 1.140.0(stable, commit 07f806f999), Claude Code 최소 1.94.0 충족, WSL 연결용 bin/code 정상. 단 data 폴더가 없어 포터블 모드가 아님: 2026-10-02 실행 기록이 기존 설치본과 같은 AppData\Roaming\Code(CachedData에 두 커밋 공존)와 C:\Users\amsoo\.vscode\extensions를 공유. 1.140에서 확장(특히 Remote-SSH) 업데이트 시 1.85.2의 서버 연결이 깨질 위험. 권장: data 폴더 생성 후 사용, 기본 전환은 사용자 확인 후 진행. 실수 기록: 확인 중 CLI를 WSLENV 없이 실행해 포터블 VS Code 창이 16:30(KST)에 열렸고, 해당 포터블 프로세스만 종료함(1.85.2 창은 유지)."
+**Context**: 정보 문의 (코드 변경 없음)
+
+---
+
+## 개발 도구 설정 - 포터블 VS Code를 WSL 기본으로 설정
+**Timestamp**: 2026-10-15T07:40:00Z
+**User Input**: "현재 D:\workspace\vscode_portable 이 폴더로 옮겼고, 하위에 data 폴더 추가 생성했어, 이 다음 단계 진행해주고, 필요하다고 하면 직접 수정해서 수정 결과만 내게 알려줘"
+**AI Response**: "프로젝트 코드 변경 없음. 수행: ~/.bashrc 백업(~/.bashrc.bak-20261015) 후 code 별칭을 포터블(1.140.0)로 추가, 포터블에 WSL 확장 0.104.3 설치(data/extensions), 프로젝트를 포터블 VS Code로 열어 WSL 서버(07f806f999) 설치, WSL 쪽에 Claude Code 확장 2.1.300 설치, 이전 강제 종료로 생긴 debug.log 삭제. 발견: 16:30(KST)의 실수 실행이 공용 확장 폴더(C:\Users\amsoo\.vscode\extensions)의 Remote-SSH 0.107.1→0.128.0(^1.133 필요), WSL 0.81.9→0.104.3(^1.104), .NET Runtime 2.3.2→3.2.0(^1.101)을 자동 업데이트하고 옛 버전을 .obsolete로 표시함 → 1.85.2 재시작 시 SSH 연결 불가 위험. 또 WSL의 1.85.2용 서버 폴더(8b3775...)가 새 서버 설치 시 정리됨(1.85.2로 WSL 접속 시 재설치됨). 복구(extensions.json 되돌리기, .obsolete 비우기, 새 버전 폴더 이동) 시도는 권한 분류기에 의해 2회 거부되어 사용자 결정 대기."
+**Context**: 개발 환경 설정, 복구 작업 사용자 승인 대기
+
+---
+
+## 개발 도구 설정 - 공용 확장 폴더 복구
+**Timestamp**: 2026-10-15T07:45:00Z
+**User Input**: "복구 진행해"
+**AI Response**: "C:\Users\amsoo\.vscode\extensions 복구 완료. extensions.json과 .obsolete 원본을 C:\Users\amsoo\.vscode\extensions-backup-20261015 에 백업, extensions.json의 Remote-SSH/WSL/.NET Runtime 항목을 0.107.1/0.81.9/2.3.2로 되돌림, .obsolete 비움, 새 버전 폴더 3개(0.128.0/0.104.3/3.2.0)는 삭제 없이 백업 폴더로 이동. 확인: 폴더의 모든 확장이 extensions.json에 등록됨. 1.85.2 CLI 목록 출력은 비어 있어 파일 기준으로 확인함(새 창은 열리지 않음)."
+**Context**: 개발 환경 복구 (프로젝트 코드 변경 없음)
+
+---
+
+## 개발 도구 설정 후 - 커밋 및 푸시 요청
+**Timestamp**: 2026-10-15T07:50:00Z
+**User Input**: "잘 열리네, audit.md 커밋하고 푸시해줘"
+**AI Response**: "사용자가 포터블 VS Code 정상 동작 확인. 오늘 audit.md 기록(개발 도구 문의, 포터블 VS Code 설정, 공용 확장 폴더 복구, 이 항목)을 커밋하고 origin으로 푸시. 이전과 같은 방식(Windows git의 저장된 자격 증명, 해당 명령에 한한 safe.directory 지정). 이 항목은 커밋에 포함되도록 푸시 전에 기록함."
+**Context**: 사용자 요청에 따른 git 커밋 및 푸시
+
+---
